@@ -8,8 +8,11 @@
 
 First, install frontend client dependencies
 
+node.js is REQUIRED to build. Make sure to get the same version of node.js as the nw.js version you download contains. [Download node.js](https://nodejs.org/)
+
 0. ```npm install -g bower```
 1. ```bower install```
+2. ```npm install -g node-gyp``` will allow us to compile the native module ```serialport```
 
 #### Building for Mac
 
@@ -24,6 +27,12 @@ First, install frontend client dependencies
 1. Checkout this repo into the nw.js directory next to nwjs.exe as a folder named ```package.nw```
 2. To change icons, use ResourceHacker to modify nwjs.exe icons
 3. Further options to build/distribute [here](https://nwjs.readthedocs.io/en/latest/For%20Users/Package%20and%20Distribute/)
+
+### Building native modules
+0. (Windows) Install python 2.7
+1. Make sure your system has the same node.js version as nw.js distributable contains.
+2. npm install in this directory, it will build module ```serialport``` that can run with nw.js
+
 
 
 ### HandyBrowser Support Telegram/Handshake Discussion:
