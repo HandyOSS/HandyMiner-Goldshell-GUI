@@ -13,6 +13,7 @@ node.js is REQUIRED to build. Make sure to get the same version of node.js as th
 0. ```npm install -g bower```
 1. ```bower install```
 2. ```npm install -g node-gyp``` will allow us to compile the native module ```serialport```
+3. ```npm install``` in this folder
 
 #### Building for Mac
 
