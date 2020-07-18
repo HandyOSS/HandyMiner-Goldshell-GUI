@@ -1,0 +1,20 @@
+#donate{
+	margin:10% auto;
+  text-align: center;
+  color:#eee;
+}
+.donateLabel{
+	font-size: 24px;
+	font-weight:600;
+	margin: 10px 0;
+}
+#donate input{
+	background:rgba(255,255,255,0.3);
+	padding: 2px 5px;
+	border:none;
+	outline:none;
+	font-family: "IBM Plex Mono";
+	text-align: center;
+	color:#eee;
+}
+

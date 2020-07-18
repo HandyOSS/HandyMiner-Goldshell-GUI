@@ -1,0 +1,3 @@
+[submodule "submodules/HandyMiner-Goldshell-CLI"]
+	path = submodules/HandyMiner-Goldshell-CLI
+	url = https://github.com/HandyMiner/HandyMiner-Goldshell-CLI.git
