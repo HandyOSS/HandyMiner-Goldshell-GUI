@@ -135,10 +135,9 @@
 			<label for="poolProvider">Mining Pool</label>
 			<select id="poolProvider">
 				<option value="hns.ss.dxpool.com" selected="selected">dxpool</option>
-				<option value="hns.f2pool.com" selected="selected">F2 Pool</option>
-				<option value="stratum+tcp://handshake.6block.com">6block</option>
-				<option value="hns-us.ss.poolflare.com">PoolFlare</option>
+				<option value="hns.f2pool.com" selected="selected">f2 pool</option>
 				<option value="stratum-us.hnspool.com">hnspool</option>
+				<option value="other">other</option>
 			</select>
 			<a id="advancedPoolSettings" href="#">advanced|custom pool settings</a>
 		</div>
@@ -262,14 +261,10 @@
 	</div>
 </div>
 <div id="logs" class="hidden">
-	<div class="label">HSD Logs:</div>
-	<pre id="logOutput">
-		
-	</pre>
-	<div class="label">Miner Logs:</div>
+	<div class="label">Raw Miner Logs:</div>
 	<pre id="minerOutput">
 		###################################
-		# Miner logs show up about 10-20s #
+		# Miner logs show up about 5-10s  #
 		# after clicking the play button. #
 		###################################
 		#    |\---/|                      #

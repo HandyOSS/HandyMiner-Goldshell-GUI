@@ -142,7 +142,7 @@ class feApp{
 				"muteFanfareSong":true,
 				"network":this.network
 			}
-			$('.minerForm').removeClass('hidden');
+			$('.minerForm#poolUI').removeClass('hidden');
 		}
 		else{
 			config = JSON.parse(fs.readFileSync(this.appDirPath+'HandyMinerConfigs/config.json','utf8'))
@@ -151,6 +151,20 @@ class feApp{
 			//$('#gpuMfg option[value="'+config.gpu_mfg.toLowerCase()+'"]').attr('selected','selected');
 			$('#stratumHost').val(config.host);
 			$('#stratumPort').val(config.port);
+			$('#stratumHostPool').val(config.host);
+			$('#stratumPortPool').val(config.port);
+			$('#poolProvider option').removeAttr('selected');
+			$('#poolProvider option[value="'+config.host+'"]').attr('selected','selected');
+			let vals = []
+			$('#poolProvider option').each(function(){
+				vals.push($(this).val())
+			})
+			if(vals.indexOf(config.host) == -1){
+				$('#poolProvider option[value="other"]').attr('selected','selected');
+				$('.advancedStratumSetting').removeClass('hidden');
+			}
+			$('#stratumUserPool').val(config.stratum_user);
+			$('#stratumPassPool').val(config.stratum_pass);
 			$('#stratumUser').val(config.stratum_user);
 			$('#stratumPass').val(config.stratum_pass);
 			$('#network option[value="'+config.network+'"]').attr('selected','selected');
@@ -268,6 +282,11 @@ class feApp{
 					$('#stratumPortPool').val('3008');
 					$('#stratumUserPool').attr('placeholder','Account Username.WorkerName');
 					
+				break;
+				case 'other':
+					$('#stratumPortPool').val('').attr('placeholder','Port');
+					$('#stratumHostPool').val('').attr('placeholder','127.0.0.1 or hns.somepool.com');
+					$('.advancedStratumSetting').removeClass('hidden');
 				break;
 			}
 			function hidePass(){
@@ -474,7 +493,7 @@ class feApp{
 			switch(id){
 				case 'miningMode':
 				default:
-					$('.minerForm').removeClass('hidden');
+					$('#poolUI').removeClass('hidden');
 				break;
 				case 'gpuSettings':
 					$('.minerForm#gpus').removeClass('hidden');
@@ -485,8 +504,8 @@ class feApp{
 			_this.logsVisible = true;
 			_this.hideLoading();
 			$('.logs').removeClass('alerted');
-			$('#logs pre#logOutput').html(_this.hsdLogs);
-			$('#logs pre#logOutput')[0].scrollTop = $('#logs pre#logOutput')[0].scrollHeight;
+			//$('#logs pre#logOutput').html(_this.hsdLogs);
+			//$('#logs pre#logOutput')[0].scrollTop = $('#logs pre#logOutput')[0].scrollHeight;
 			$('#logs').removeClass('hidden').removeClass('required');
 		})
 		$('.startStop').off('click').on('click',function(){
@@ -860,7 +879,8 @@ class feApp{
 		console.log('query gpus?',nw.__dirname+'/submodules/HandyMiner-CLI');
 		process.env.HANDYRAW = 'true';
 		let executable = process.platform.toLowerCase().indexOf('darwin') == 0 ? process.execPath : nw.global.__dirname+'/externals/node.exe';
-		
+		process.env.HANDYMINER_GUI_NODE_EXEC = executable;
+
 		let queryProcess = spawn(executable,
 			['./mine.js','-1',$('#gpuPlatform option:selected').val() || '0','amd'	],
 			{
@@ -1223,10 +1243,10 @@ class feApp{
 		},1000);
 		//this.renderHashrate();
 		this.hashrateDisplayInterval = setInterval(()=>{
-			console.log('render hashrate chart called');
+			//console.log('render hashrate chart called');
 			this.renderHashrate();
-			console.log('render hashrate chart')
-		},21000)
+			//console.log('render hashrate chart')
+		},10500)
 	}
 	renderHashrate(){
 		 const _this = this;
@@ -1289,7 +1309,7 @@ class feApp{
 			let totalSum = 0;
 			let avgSum = 0;
 			let timeForLine;
-			console.log('hrline',hrLine)
+			//console.log('hrline',hrLine)
 			Object.keys(hrLine.rates).map(asicID=>{
 				if(typeof dataByAsic[asicID] == "undefined"){
 					createLineObj(asicID,hrLine.rates[asicID]);
@@ -1318,7 +1338,7 @@ class feApp{
 				};
 				*/
 			});
-			console.log('last avg',lastAvgHashrate);
+			//console.log('last avg',lastAvgHashrate);
 			lastAvgHashrate = avgSum;
 			lastTotalHashrate = totalSum;
 			totalHashrate.push([totalSum,timeForLine]);
@@ -1327,7 +1347,7 @@ class feApp{
 				//add diff
 				let diffLine = diffJSONs[i];
 				Object.keys(diffLine.rates).map(asicID=>{
-					console.log('DIFFLINE',diffLine,diffLine.rates[asicID],asicID)
+					//console.log('DIFFLINE',diffLine,diffLine.rates[asicID],asicID)
 					let diffData = diffLine.rates[asicID];
 					let timestamp = diffLine.time;
 					allTimes.push(timestamp);
@@ -1436,7 +1456,7 @@ class feApp{
        function renderChart(data,asicID,type){
 			let asicName = _this.asicNames[asicID] ? asicID+'.'+_this.asicNames[asicID] : asicID;
 
-			console.log('chartd',data);
+			//console.log('chartd',data);
 			const step = 23;
 			let $el;
 			if($('#right .asic[data-id="'+asicID+'"]').length == 0){
@@ -1515,7 +1535,7 @@ class feApp{
 			  .data(d=>{return [d];})
 			  .join('clipPath')
 			  //.append("clipPath")
-		      	.attr("id", d => {console.log('clippath data',d); return d.clipId.id;});
+		      	.attr("id", d => { return d.clipId.id;});
 
 		    cPath.selectAll('rect')
 		      .data(d=>{return [d];})
@@ -1956,12 +1976,18 @@ class feApp{
 						};
 						*/
 						_this.asicNames[lineD.data.serialPort] = lineD.data.modelName;
-						let t = $tmpl.clone();
-						t.attr('data-id',lineD.data.serialPort);
-						t.addClass('gpuIcon');
-						$('li',t).eq(0).html(lineD.data.serialPort+'.'+lineD.data.modelName+'<small>'+lineD.data.serial.slice(1)+'</small>');
-						$('li',t).eq(1).html('0MH');
-						$('.gpuStatus').append(t);
+							if($('.gpuIcon[data-id="'+lineD.data.serialPort+'"]').length == 0){
+							let t = $tmpl.clone();
+							t.attr('data-id',lineD.data.serialPort);
+							t.addClass('gpuIcon');
+							$('li',t).eq(0).html(lineD.data.serialPort+'.'+lineD.data.modelName+'<small>'+lineD.data.serial.slice(1)+'</small>');
+							$('li',t).eq(1).html('0MH');
+							$('.gpuStatus').append(t);
+						}
+						else{
+							$('.gpuIcon[data-id="'+lineD.data.serialPort+'"]').removeClass('disconnected');
+							$('.halfChart .asic[data-id="'+lineD.data.serialPort+'"]').removeClass('disconnected')
+						}
 						_this.resizeStatsPanel();
 						_this.startHashrateChartTicks();
 					break;
@@ -2199,9 +2225,26 @@ class feApp{
 			//}
 		}
 		if(type == 'error'){
+			let j = JSON.parse(line);
+			if(j.disconnected){
+				//asic was disconnected
+				let asicID = j.data.asicID;
+				console.log('asic id discon',asicID)
+				$('.gpuIcon[data-id="'+asicID+'"]').addClass('disconnected');
+				$('.logs').addClass('alerted');
+				$('.halfChart .asic[data-id="'+asicID+'"]').addClass('disconnected')
+			}
+			if(j.message.indexOf('STRATUM CONNECTION WAS CLOSED') == -1){
+				$('.logs').addClass('alerted');
+			}
+
+			console.log('error was found???',j,j.disconnected);
+		}
+
+		/*if(type == 'error'){
 			
 			$('.logs').addClass('alerted');
-		}
+		}*/
 		//console.log('line pushed',line,line.indexOf('chain/LOCK:'),line.indexOf('Resource temporarily unavailable'));
 
 		

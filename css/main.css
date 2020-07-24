@@ -158,6 +158,24 @@ h3{
 .infoElement.gpuIcon{
 	padding: 2px 10px 5px 10px;
 }
+.gpuIcon.disconnected{
+	opacity:0.5;
+}
+.gpuIcon.disconnected li:first-child{
+	color:#aaa;
+}
+.gpuIcon.disconnected small:after{
+	content: ' [disconnected]';
+	color:#aaa;
+}
+.asic.disconnected{
+	opacity:0.5;
+}
+.asic.disconnected .name:after{
+	content: ' [disconnected]';
+	color:#aaa;
+	font-size:10px;
+}
 .infoElement label{
   display: block;
   margin-bottom: 5px;
@@ -193,6 +211,7 @@ h3{
 select#poolProvider{
 	margin: 2px 5px;
 	padding: 2px 5px;
+	float:left;
 }
 #advancedPoolSettings{
 	float:left;
@@ -614,7 +633,7 @@ input#hsdMinerWallet, input#hsdMinerWalletPool{
 	margin: 1% 2%;
 	padding: 10px;
 	background:rgba(0,0,0,0.88);
-	height:35%;
+	height:calc(100% - 120px);
 	overflow-y:scroll;
 	overflow-x: auto;
     white-space: pre-wrap;
@@ -625,7 +644,7 @@ input#hsdMinerWallet, input#hsdMinerWalletPool{
 }
 #logs .label{
 	float:left;
-	width:100%;
+	width:calc(100% - 40px);
 	padding: 0px 20px;
 }
 #logs .close{
