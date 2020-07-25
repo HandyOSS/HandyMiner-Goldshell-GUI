@@ -55,6 +55,7 @@ class feApp{
 		this.resizeStatsPanel();
 		nw.Window.get().on('resize',()=>{
 			this.resizeStatsPanel();
+			this.renderHashrate();
 		})
 	}
 	resizeStatsPanel(){
@@ -335,7 +336,7 @@ class feApp{
 						t.attr('data-id',gpuID);
 						t.addClass('gpuIcon');
 						$('li',t).eq(0).html('GPU'+gpuID);
-						$('li',t).eq(1).html('0MH');
+						$('li',t).eq(1).html('--GH');
 						$('.gpuStatus').append(t);
 					})
 					fs.writeFileSync(this.appDirPath+'HandyMinerConfigs/config.json',JSON.stringify(_this.config,null,2));
@@ -992,7 +993,7 @@ class feApp{
 					t.attr('data-id',v);
 					t.addClass('gpuIcon');
 					$('li',t).eq(0).html('GPU'+v);
-					$('li',t).eq(1).html('0MH');
+					$('li',t).eq(1).html('--GH');
 					$('.gpuStatus').append(t)
 					outStr.push(v);
 				});
@@ -1305,10 +1306,24 @@ class feApp{
 		let lastAvgHashrate = 0;
 		let lastNetworkDiff = 0;
 		let lastLocalDiff = 0;
-		hashrateJSONs.map((hrLine,i)=>{
+		let targetTime = moment().subtract(2,'hours').format('x');
+		//console.log('targetTime',targetTime);
+		let filteredJSONs = hashrateJSONs;/*= hashrateJSONs.filter(line=>{
+			if(line.time >= targetTime){
+				return true;
+			}
+			return false;
+		})*/
+		/*hashrateJSONs*/
+		//console.log('tl data',filteredJSONs);
+		filteredJSONs.map((hrLine,i)=>{
 			let totalSum = 0;
 			let avgSum = 0;
 			let timeForLine;
+			let timestamp = hrLine.time;
+			timeForLine = timestamp;
+			allTimes.push(timestamp);
+			
 			//console.log('hrline',hrLine)
 			Object.keys(hrLine.rates).map(asicID=>{
 				if(typeof dataByAsic[asicID] == "undefined"){
@@ -1316,9 +1331,6 @@ class feApp{
 				}
 				
 				let hashrateData = hrLine.rates[asicID];
-				let timestamp = hrLine.time;
-				timeForLine = timestamp;
-				allTimes.push(timestamp);
 				hashratePerAsic[asicID].realtime.push([hashrateData.hashrateNow,timestamp])
 				fansPerAsic[asicID].realtime.push([hashrateData.fan,timestamp]);
 				tempPerAsic[asicID].realtime.push([hashrateData.temp,timestamp]);
@@ -1343,26 +1355,36 @@ class feApp{
 			lastTotalHashrate = totalSum;
 			totalHashrate.push([totalSum,timeForLine]);
 
-			if(typeof diffJSONs[i] != "undefined"){
+			/*if(typeof diffJSONs[i] != "undefined"){
 				//add diff
 				let diffLine = diffJSONs[i];
-				Object.keys(diffLine.rates).map(asicID=>{
-					//console.log('DIFFLINE',diffLine,diffLine.rates[asicID],asicID)
-					let diffData = diffLine.rates[asicID];
-					let timestamp = diffLine.time;
-					allTimes.push(timestamp);
-					difficultyPerAsic[asicID].network.push([diffData.network,timestamp]);
-					difficultyPerAsic[asicID].local.push([diffData.local,timestamp]);
-					lastNetworkDiff = diffData.network;
-					lastLocalDiff = diffData.local;
-				})
-			}
+				if(typeof diffLine.rates != "undefined" && Object.keys(diffLine.rates).length > 0){
+					Object.keys(diffLine.rates).map(asicID=>{
+						console.log('DIFFLINE',diffLine,diffLine.rates[asicID],asicID)
+						let diffData = diffLine.rates[asicID];
+						let timestamp = diffLine.time;
+						allTimes.push(timestamp);
+						difficultyPerAsic[asicID].network.push([diffData.network,timestamp]);
+						difficultyPerAsic[asicID].local.push([diffData.local,timestamp]);
+						lastNetworkDiff = diffData.network;
+						lastLocalDiff = diffData.local;
+					})
+				}
+			}*/
 		});
+		diffJSONs.map(diffLine=>{
+			if(Object.keys(diffLine.rates).length > 0){
+				let r0 = diffLine.rates[Object.keys(diffLine.rates)[0]];
+				lastNetworkDiff	= r0.network;
+				lastLocalDiff = r0.local;
+			}
+		})
+		
 
 		this.renderLeftStats(lastNetworkDiff,lastLocalDiff,lastTotalHashrate,lastAvgHashrate);
 
 
-		let timeExtent = d3.extent(allTimes);
+		let timeExtent = [targetTime,moment().format('x')]//d3.extent(allTimes);
 		let totalHashrateSeries = [];
 		let allDates = totalHashrate.map(d=>{
 			totalHashrateSeries.push(d[0]);
@@ -1370,6 +1392,9 @@ class feApp{
 		});
 
 		Object.keys(dataByAsic).map(asicID=>{
+			if(typeof this.asicNames[asicID] == "undefined"){
+				return;
+			}
 			/*
 			hashratePerAsic[asicID].realtime.push([hashrateData.hashrateNow,timestamp])
 			fansPerAsic[asicID].realtime.push([hashrateData.fan,timestamp]);
@@ -1434,7 +1459,15 @@ class feApp{
 			renderChart(dataByAsic[asicID],asicID,'hashrate');
 			renderChart(dataByAsic[asicID],asicID,'temp');
 			renderChart(dataByAsic[asicID],asicID,'fans');
-
+			if(!$('#right .asic[data-id="'+asicID+'"]').hasClass('hidden')){
+				$('#right .asic[data-id="'+asicID+'"]').css({'height':'auto'});
+				setTimeout(()=>{
+					let h = $('#right .asic[data-id="'+asicID+'"]').height();
+					$('#right .asic[data-id="'+asicID+'"]').attr('data-height',h);
+					$('#right .asic[data-id="'+asicID+'"]').css({'height':h});
+				},150)
+			}
+			
 		});
 
 		//ok now draw some charts
@@ -1467,12 +1500,12 @@ class feApp{
 				$el = $('#right .asic[data-id="'+asicID+'"]');
 			}
 			if($('svg.'+type,$el).length == 0){
-				$el.append('<svg class="'+type+'" />')
+				$el.append('<svg class="'+type+'" data-id="'+asicID+'" />')
 			}
 
 			//horizonElCount = 4;// data.hashrate.length;
-			const svg = d3.select($el[0]).select('svg.'+type);
-			$('svg.'+type,$el).css('height',step*data[type].length)
+			const svg = d3.select($el[0]).select('svg[data-id="'+asicID+'"].'+type);
+			$('svg[data-id="'+asicID+'"].'+type,$el).css('height',step*data[type].length)
 			
 			let width = $('#right.halfChart').width();
 			let height = $('#right.halfChart').height();
@@ -1520,8 +1553,8 @@ class feApp{
 			    .call(g => g.selectAll(".tick").filter(d => x(d) < margin.left || x(d) >= width - margin.right).remove())
 			    .call(g => g.select(".domain").remove());
 			let chartData = data[type].map((d,i) => Object.assign({
-		      clipId: DOM("clip"+type,i),
-		      pathId: DOM("path"+type,i)
+		      clipId: DOM("clip"+type+asicID,i),
+		      pathId: DOM("path"+type+asicID,i)
 		    }, d))    
 			const g = svg
 				.selectAll('g.main')
@@ -1636,8 +1669,9 @@ class feApp{
 					    })
 			      	return;
 			      })
-			$('text','svg.'+type).eq(0).addClass('first');
-			$('svg.hashrate path').eq(0).addClass('first');
+			$('text','svg[data-id="'+asicID+'"].'+type).eq(0).addClass('first');
+			$('svg[data-id="'+asicID+'"].hashrate path').eq(0).addClass('first');
+
 			/*svg.append("g")
 			    .call(xAxis);*/
 
@@ -1870,6 +1904,19 @@ class feApp{
 			this.minerProcess.kill();
 			this.hashRates = {};
 		}
+		fs.writeFileSync(nw.__dirname+'/submodules/HandyMiner-Goldshell-CLI/goldshell.json',JSON.stringify(this.config,null,2),'utf8'); //make a default config
+		/*
+{
+  "asics": "-1",
+  "host": "hns.f2pool.com",
+  "port": 6000,
+  "stratum_user": "hs1qwfpd5ukdwdew7tn7vdgtk0luglgckp3klj44f8.hs1",
+  "stratum_pass": "earthlab",
+  "mode": "pool",
+  "poolDifficulty": -1,
+  "muteWinningFanfare": false
+}
+		*/
 		const handyMinerParams = [
 			'./mine.js',
 			this.config.asics,
@@ -1903,12 +1950,21 @@ class feApp{
 
 		minerProcess.stdout.on('data',(d)=>{
 			//console.log('miner stdout',d.toString('utf8'));
-			let t = 'stdout';
+			let lines = d.toString('utf8');
+			lines = lines.split('\n').filter(l=>{
+				return l.length > 0;
+			});
+			lines.map(line=>{
+				let t = 'stdout';
 
-			if(d.toString('utf8').indexOf('"type":"error"') >= 0){
-				t = 'error';
-			}
-			this.pushToLogs(d.toString('utf8'),t,'miner');
+				if(line.indexOf('"type":"error"') >= 0){
+					t = 'error';
+				}
+				//console.log('logs here',d.toString('utf8'),t);
+				this.pushToLogs(line,t,'miner');
+			})
+			
+
 			this.parseMinerOut(d.toString('utf8'));
 			
 		});
@@ -1931,20 +1987,23 @@ class feApp{
 			this.isMining = false;
 			this.hashRates = {};
 			$('.gpuIcon').each(function(){
-				$('li',this).eq(1).html('0MH')
+				$('li',this).eq(1).html('--GH')
 			})
 		}
 	}
 	parseMinerOut(text){
 		const _this = this;
-		let lines = text.split('\n');
+		let lines = text.split('\n').filter(l=>{
+			return l.length > 0;
+		});
 		lines.map(function(line){
 			let lineD;
+
 			try{
 				lineD = JSON.parse(line.trim());
 			}
 			catch(e){
-
+				//console.log('error parsing json',e);
 			}
 			if(lineD){
 				//console.log('lineD isset',lineD);
@@ -1975,21 +2034,51 @@ class feApp{
 							workDepth
 						};
 						*/
+						//console.log('new machine registered',lineD);
 						_this.asicNames[lineD.data.serialPort] = lineD.data.modelName;
-							if($('.gpuIcon[data-id="'+lineD.data.serialPort+'"]').length == 0){
+						if($('.gpuIcon[data-id="'+lineD.data.serialPort+'"]').length == 0){
 							let t = $tmpl.clone();
 							t.attr('data-id',lineD.data.serialPort);
 							t.addClass('gpuIcon');
-							$('li',t).eq(0).html(lineD.data.serialPort+'.'+lineD.data.modelName+'<small>'+lineD.data.serial.slice(1)+'</small>');
-							$('li',t).eq(1).html('0MH');
+							let shortName = lineD.data.serialPort;
+							if(shortName.length > 4){
+								shortName = '...'+shortName.slice(-4);
+							}
+							$('li',t).eq(0).html(shortName+'.'+lineD.data.modelName+'<small>'+lineD.data.serial.slice(1)+'</small>');
+							$('li',t).eq(1).html('--GH');
 							$('.gpuStatus').append(t);
 						}
 						else{
 							$('.gpuIcon[data-id="'+lineD.data.serialPort+'"]').removeClass('disconnected');
 							$('.halfChart .asic[data-id="'+lineD.data.serialPort+'"]').removeClass('disconnected')
 						}
+						$('.gpuIcon[data-id="'+lineD.data.serialPort+'"]').off('mouseenter').on('mouseenter',()=>{
+							if($('.gpuIcon.clicked').length == 0){
+								$('.halfChart#right .asic').addClass('hidden');
+								$('.halfChart#right .asic[data-id="'+lineD.data.serialPort+'"]').removeClass('hidden');
+							}
+						}).off('mouseleave').on('mouseleave',function(){
+							if($('.gpuIcon.clicked').length == 0){
+								$('.halfChart#right .asic').removeClass('hidden');
+							}
+						}).off('click').on('click',function(){
+							console.log("clicked");
+							let isClicked = $(this).hasClass('clicked');
+							if(isClicked){
+								$('.gpuIcon').removeClass('clicked');
+								$('#right .asic').removeClass('hidden');
+							}
+							else{
+								$('.gpuIcon').not($(this)).removeClass('clicked');
+								$(this).addClass('clicked');
+								$('.halfChart#right .asic').addClass('hidden');
+								$('.halfChart#right .asic[data-id="'+lineD.data.serialPort+'"]').removeClass('hidden');
+								if($('.halfChart#right .asic[data-id="'+lineD.data.serialPort+'"]').attr('data-height')){
+									$('.halfChart#right .asic[data-id="'+lineD.data.serialPort+'"]').css('height',$('.halfChart#right .asic[data-id="'+lineD.data.serialPort+'"]').attr('data-height'))
+							}	}
+						})
 						_this.resizeStatsPanel();
-						_this.startHashrateChartTicks();
+						//_this.startHashrateChartTicks();
 					break;
 					case 'difficulty':
 						//console.log('difficulty data recv',lineD);
@@ -2053,6 +2142,9 @@ class feApp{
 						
 						//console.log('hashrates recvd',lineD);
 						$('.gpuIcon[data-id="'+asicID+'"] li').eq(1).html(numeral(hashRate).format('0.00')+'GH')
+						if(parseFloat(hashRate) > 0){
+							_this.renderHashrate();
+						}
 						/*if(hashRate > 0 && hashRate < 1000000000){
 							_this.hashRates[gpuID] = hashRate;
 							//console.log('hashrate: ',hashRate);
@@ -2224,8 +2316,16 @@ class feApp{
 				$('#logs pre#minerOutput')[0].scrollTop = $('#logs pre#minerOutput')[0].scrollHeight;
 			//}
 		}
+		
+		let j = JSON.parse(line);
+		//console.log('line data',j,j.type,j.data);
+		if(j.type == 'stratumLog' && $('.syncedIcon').hasClass('alert') && j.data == 'Successfully Registered With Stratum'){
+			//reconnected then
+			$('.syncedIcon').removeClass('alert').addClass('success');
+			$('.syncedButton .statusLabel').html('Connected To Pool');
+			$('.syncedButton').fadeOut(1000);
+		}		
 		if(type == 'error'){
-			let j = JSON.parse(line);
 			if(j.disconnected){
 				//asic was disconnected
 				let asicID = j.data.asicID;
@@ -2237,6 +2337,18 @@ class feApp{
 			if(j.message.indexOf('STRATUM CONNECTION WAS CLOSED') == -1){
 				$('.logs').addClass('alerted');
 			}
+			if(j.message.indexOf('RECONNECTING NOW') >= 0){
+				$('.syncedIcon').addClass('alert');
+				$('.statusPrefix').html('');
+				$('.syncedButton .statusLabel').html('Connecting to Pool...');
+				$('.syncedButton').show();
+
+			}
+
+			/*
+				$('.syncedIcon').addClass('alert');
+					$('.syncedButton .statusLabel').html('Failed to start HSD');
+			*/
 
 			console.log('error was found???',j,j.disconnected);
 		}
