@@ -6,9 +6,13 @@
 
 ### Building from Source
 
-First, install frontend client dependencies
+First we will checkout HandyMiner-Goldshell-CLI into the project
+```git submodule init```
+```git submodule update```
 
-node.js is REQUIRED to build. Make sure to get the same version of node.js as the nw.js version you download contains. [Download node.js](https://nodejs.org/)
+Install GUI/CLI-miner dependencies:
+
+node.js is REQUIRED to build. **Make sure to get the same version of node.js as the nw.js version you download contains.** [Download node.js](https://nodejs.org/)
 
 0. ```npm install -g bower```
 1. ```bower install```
