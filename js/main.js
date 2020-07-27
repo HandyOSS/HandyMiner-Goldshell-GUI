@@ -134,7 +134,7 @@ class feApp{
 		if(!fs.existsSync(this.appDirPath+'HandyMinerConfigs/config.json')){
 			config = {
 				"asics":"-1",
-				"mode":"",
+				"mode":"pool",
 				"host":"",
 				"port":"",
 				"stratum_user":"",
