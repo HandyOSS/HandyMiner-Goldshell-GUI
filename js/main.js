@@ -1929,6 +1929,9 @@ class feApp{
 			(this.config.muteFanfareSong ? "1" : "0")
 		];
 		let executable = process.platform.toLowerCase().indexOf('darwin') == 0 ? process.execPath : nw.global.__dirname+'/externals/node.exe';
+		if(process.platform.indexOf('darwin') >= 0){
+			executable = nw.global.__dirname+'/externals/node';
+		}
 		process.env.HANDYMINER_GUI_NODE_EXEC = executable;
 		let minerProcess = spawn(executable,
 			handyMinerParams,
