@@ -1,1 +1,0 @@
-require(__dirname+'/../submodules/HandyMiner-CLI/node_modules/hsd/bin/node')

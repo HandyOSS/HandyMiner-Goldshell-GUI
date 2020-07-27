@@ -514,6 +514,7 @@ class feApp{
 				//should play
 				$(this).html('&#9612;&#9612;');
 				$(this).addClass('playing');
+				$(this).attr('title','pause miner');
 				$(this).removeClass('paused');
 				$('.gpuStatus .gpuIcon').remove();
 				_this.startMiner();
@@ -522,6 +523,7 @@ class feApp{
 			else{
 				$(this).html('&#9654;')
 				$(this).addClass('paused');
+				$(this).attr('title','start miner');
 				$(this).removeClass('playing');
 				_this.stopMiner();
 			}
@@ -1308,6 +1310,7 @@ class feApp{
 		let lastLocalDiff = 0;
 		let targetTime = moment().subtract(2,'hours').format('x');
 		//console.log('targetTime',targetTime);
+		console.log('last hashrate json',hashrateJSONs[hashrateJSONs.length-1])
 		let filteredJSONs = hashrateJSONs;/*= hashrateJSONs.filter(line=>{
 			if(line.time >= targetTime){
 				return true;
@@ -1414,6 +1417,7 @@ class feApp{
 				dates.push(d[1])
 				hashrateSeries.push(d[0])
 			});
+			console.log('last in series',dates[dates.length-1],hashrateSeries[hashrateSeries.length-1])
 			Object.keys(hashratePerAsic[asicID].workers).map(workerID=>{
 				let d = hashratePerAsic[asicID].workers[workerID];
 				let workerseries = d.realtime.map(d=>{
@@ -1585,6 +1589,8 @@ class feApp{
 		      .join('path')
 		      //.append("path")
 		      .attr("id", d => d.pathId.id)
+		      .transition()
+		      .duration(300)
 		      .attr("d", d => area(d.values));
 		    let gClipPath = g.selectAll('g')
 		      .data(d=>{return [d];})
@@ -1905,18 +1911,7 @@ class feApp{
 			this.hashRates = {};
 		}
 		fs.writeFileSync(nw.__dirname+'/submodules/HandyMiner-Goldshell-CLI/goldshell.json',JSON.stringify(this.config,null,2),'utf8'); //make a default config
-		/*
-{
-  "asics": "-1",
-  "host": "hns.f2pool.com",
-  "port": 6000,
-  "stratum_user": "hs1qwfpd5ukdwdew7tn7vdgtk0luglgckp3klj44f8.hs1",
-  "stratum_pass": "earthlab",
-  "mode": "pool",
-  "poolDifficulty": -1,
-  "muteWinningFanfare": false
-}
-		*/
+
 		const handyMinerParams = [
 			'./mine.js',
 			this.config.asics,
@@ -1934,6 +1929,7 @@ class feApp{
 			(this.config.muteFanfareSong ? "1" : "0")
 		];
 		let executable = process.platform.toLowerCase().indexOf('darwin') == 0 ? process.execPath : nw.global.__dirname+'/externals/node.exe';
+		process.env.HANDYMINER_GUI_NODE_EXEC = executable;
 		let minerProcess = spawn(executable,
 			handyMinerParams,
 			{
@@ -1988,7 +1984,21 @@ class feApp{
 			this.hashRates = {};
 			$('.gpuIcon').each(function(){
 				$('li',this).eq(1).html('--GH')
+			});
+			$('.leftInfo.totalHashrate .value').html('--GH')
+			$('.leftInfo.avgHashrate .value').html('--GH');
+			d3.selectAll('#right svg text').each(function(d){
+				if(d.name == 'Hashrate' || d.name.indexOf('Worker') >= 0){
+					d3.select(this).text(d.name+': --GH')
+				}
+				if(d.name == "Temperature"){
+					d3.select(this).text(d.name+': --°C')
+				}
+				if(d.name == 'Fan RPM'){
+					d3.select(this).text(d.name+': ----RPM')
+				}
 			})
+
 		}
 	}
 	parseMinerOut(text){
@@ -2019,6 +2029,24 @@ class feApp{
 					break;
 					case 'registration':
 						//add gpus to main
+						console.log('registration event',lineD);
+						if(typeof lineD.data.length != "undefined"){
+							//empty registration passes back empty array vs object per machine
+							//alert user
+							$('.syncedIcon').addClass('alert').addClass('noAsicAlert');
+							$('.statusPrefix').html('');
+							$('.syncedButton .statusLabel').html('No ASICs detected');
+							$('.syncedButton').show();
+
+						}
+						else{
+						    if($('.syncedIcon').hasClass('noAsicAlert')){
+						    	$('.syncedIcon').removeClass('alert').removeClass('noAsicAlert').addClass('success')
+								$('.statusPrefix').html('');
+								$('.syncedButton .statusLabel').html('Detected ASIC: '+lineD.data.serialPort);
+								$('.syncedButton').fadeOut(1000);
+						    }
+						}
 						let $tmpl = $('#gpuTemplate').clone();
 						$tmpl.removeAttr('id');
 						//let gpuArr = gpus.split(',');
@@ -2134,15 +2162,16 @@ class feApp{
 							fan:lineD.data.fanRpm
 						};
 						let hrLine = JSON.stringify({rates:_this.hashRates,time:new Date().getTime()})+'\n';
-						fs.appendFile(_this.appDirPath+'HandyMinerConfigs/localHashrate.jsonl',hrLine,function(err,d){});
+						fs.appendFileSync(_this.appDirPath+'HandyMinerConfigs/localHashrate.jsonl',hrLine,'utf8');
 						//write difficulty here because it's more regular
 						
 						let diffLine = JSON.stringify({rates:_this.difficulty,time:new Date().getTime()})+'\n';
-						fs.appendFile(_this.appDirPath+'HandyMinerConfigs/difficulty.jsonl',diffLine,function(err,d){})
+						fs.appendFileSync(_this.appDirPath+'HandyMinerConfigs/difficulty.jsonl',diffLine,'utf8')
 						
 						//console.log('hashrates recvd',lineD);
 						$('.gpuIcon[data-id="'+asicID+'"] li').eq(1).html(numeral(hashRate).format('0.00')+'GH')
 						if(parseFloat(hashRate) > 0){
+							console.log('render hashrate then',hashRate,_this.hashRates);
 							_this.renderHashrate();
 						}
 						/*if(hashRate > 0 && hashRate < 1000000000){
@@ -2319,7 +2348,7 @@ class feApp{
 		
 		let j = JSON.parse(line);
 		//console.log('line data',j,j.type,j.data);
-		if(j.type == 'stratumLog' && $('.syncedIcon').hasClass('alert') && j.data == 'Successfully Registered With Stratum'){
+		if(j.type == 'stratumLog' && $('.syncedIcon').hasClass('alert') && !$('.syncedIcon').hasClass('noAsicAlert') && j.data == 'Successfully Registered With Stratum'){
 			//reconnected then
 			$('.syncedIcon').removeClass('alert').addClass('success');
 			$('.syncedButton .statusLabel').html('Connected To Pool');
@@ -2337,7 +2366,7 @@ class feApp{
 			if(j.message.indexOf('STRATUM CONNECTION WAS CLOSED') == -1){
 				$('.logs').addClass('alerted');
 			}
-			if(j.message.indexOf('RECONNECTING NOW') >= 0){
+			if(j.message.indexOf('RECONNECTING NOW') >= 0 && !$('.syncedIcon').hasClass('noAsicAlert')){
 				$('.syncedIcon').addClass('alert');
 				$('.statusPrefix').html('');
 				$('.syncedButton .statusLabel').html('Connecting to Pool...');
