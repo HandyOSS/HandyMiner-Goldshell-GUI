@@ -4,6 +4,8 @@
 
 ### Download Latest Prebuilt HandyMiner-Goldshell-GUI in [Releases](https://github.com/HandyMiner/HandyMiner-Goldshell-GUI/releases) [Skips all the steps below]
 
+**[note for Ubuntu users permissions on first run](#ubuntuFirstRun)**
+
 ### Building from Source
 
 First we will checkout HandyMiner-Goldshell-CLI into the project
@@ -18,6 +20,7 @@ node.js is REQUIRED to build. **Make sure to get the same version of node.js as 
 1. ```bower install```
 2. ```npm install -g node-gyp``` will allow us to compile the native module ```serialport```
 3. ```npm install``` in this folder
+4. ```mkdir externals``` and copy the node (or nodejs on linux) binary into the externals folder
 
 #### Building for Mac
 
@@ -51,6 +54,22 @@ node.js is REQUIRED to build. **Make sure to get the same version of node.js as 
 
 **HandyMiner Team Donation Address (BTC): ```bc1qk3rk4kgek0hzpgs8qj4yej9j5fs7kcnjk7kuvt```**
 
+<a id="ubuntuFirstRun" />
+##### Ubuntu Users First Run Permissions Step:
+
+##### To add your user to the device group for non-sudo device access: 
+##### the easy way: ```sudo ./linux_grant_serial_permissions.sh``` in the release root, and then logout/login to the linux machine.
+
+##### or the less easier way: 
+
+0. Plug in the USB and run the command with the device ID listed in the error, like:
+```ls -la /dev/ttyACM0```
+It will output something like:
+```crw-rw---- 1 root dialout 166, 0 Jul 18 18:06 /dev/ttyACM0```
+Which in our case, the group is ```dialout```
+1. To add your username to the dialout group:
+```sudo useradd -G dialout $USER``` (OR ON SOME SYSTEMS) ```sudo adduser $USER dialout```
+2. Now logout/login to the computer and voila, you can now mine without sudo!
 
 ##### [LICENSE](https://github.com/HandyMiner/HandyMiner-Goldshell-GUI/blob/master/LICENSE) 
 

@@ -57,6 +57,31 @@ class feApp{
 			this.resizeStatsPanel();
 			this.renderHashrate();
 		})
+		this.writeLinuxDesktopRunner();
+	}
+	writeLinuxDesktopRunner(){
+		let runnerPath = nw.App.getStartPath()+'/HandyMiner.desktop';
+		let execPath = nw.App.getStartPath();
+		if(global.__dirname.indexOf('package.nw') >= 0){
+			execPath = global.__dirname.split('/').slice(0,-1).join('/');
+			runnerPath = execPath+'/HandyMiner.desktop';
+		}
+		let runnerText = fs.readFileSync(runnerPath,'utf8');
+		let lines = runnerText.split('\n').map(line=>{
+			if(line.indexOf('Icon=') == 0){
+				//target line, update icon w abs path
+				return `Icon=${global.__dirname}/icons/app.png`;
+			}
+			else if(line.indexOf('Path=') == 0){
+				//update path
+				return `Path=${execPath}`;
+			}
+			else if(line.indexOf('Exec=') == 0){
+				return `Exec=${execPath}/HandyMiner`;
+			}
+			else return line;
+		})
+		fs.writeFileSync(runnerPath,lines.join('\n'),'utf8');
 	}
 	resizeStatsPanel(){
 		let offset = Math.floor($('.stats').offset().top);
@@ -1310,7 +1335,6 @@ class feApp{
 		let lastLocalDiff = 0;
 		let targetTime = moment().subtract(2,'hours').format('x');
 		//console.log('targetTime',targetTime);
-		console.log('last hashrate json',hashrateJSONs[hashrateJSONs.length-1])
 		let filteredJSONs = hashrateJSONs;/*= hashrateJSONs.filter(line=>{
 			if(line.time >= targetTime){
 				return true;
@@ -1417,7 +1441,6 @@ class feApp{
 				dates.push(d[1])
 				hashrateSeries.push(d[0])
 			});
-			console.log('last in series',dates[dates.length-1],hashrateSeries[hashrateSeries.length-1])
 			Object.keys(hashratePerAsic[asicID].workers).map(workerID=>{
 				let d = hashratePerAsic[asicID].workers[workerID];
 				let workerseries = d.realtime.map(d=>{
@@ -1932,7 +1955,11 @@ class feApp{
 		if(process.platform.indexOf('darwin') >= 0){
 			executable = nw.global.__dirname+'/externals/node';
 		}
+		if(process.platform.indexOf('linux') >= 0){
+			executable = nw.global.__dirname+'/externals/nodejs';
+		}
 		process.env.HANDYMINER_GUI_NODE_EXEC = executable;
+		console.log('exec',executable);
 		let minerProcess = spawn(executable,
 			handyMinerParams,
 			{
@@ -1943,6 +1970,7 @@ class feApp{
 		//console.log('miner process isset???',minerProcess);
 		
 		minerProcess.stderr.on('data',(d)=>{
+			console.log('stderr',d.toString('utf8'));
 			this.pushToLogs(d.toString('utf8'),'error','miner');
 			console.log('data err',d.toString('utf8'));
 		})
@@ -2174,7 +2202,6 @@ class feApp{
 						//console.log('hashrates recvd',lineD);
 						$('.gpuIcon[data-id="'+asicID+'"] li').eq(1).html(numeral(hashRate).format('0.00')+'GH')
 						if(parseFloat(hashRate) > 0){
-							console.log('render hashrate then',hashRate,_this.hashRates);
 							_this.renderHashrate();
 						}
 						/*if(hashRate > 0 && hashRate < 1000000000){
