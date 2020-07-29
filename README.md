@@ -56,7 +56,7 @@ node.js is REQUIRED to build. **Make sure to get the same version of node.js as 
 
 <a id="ubuntuFirstRun" />
 
-##### Ubuntu Users First Run Permissions Step:
+### Ubuntu Users First Run Permissions Step:
 
 ##### To add your user to the device group for non-sudo device access: 
 ##### the easy way: ```sudo ./linux_grant_serial_permissions.sh``` in the release root, and then logout/login to the linux machine.
