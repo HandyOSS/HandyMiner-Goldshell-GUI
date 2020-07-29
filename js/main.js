@@ -1,9 +1,6 @@
 let FE;
 const fs = require('fs');
 const spawn = require('child_process').spawn;
-var os = require('os');
-
-const http = require('http');
 
 delete process.env.OPENSSL_CONF;
 
@@ -23,14 +20,6 @@ class feApp{
 			appDirPath = process.env.HOME+'/.config/HandyMiner/Default/';
 		}
 		this.appDirPath = appDirPath;
-		/*nw.App.setProxyConfig('127.0.0.1:5301');
-		nw.Window.open('./tray.html',{
-			width:screen.width,
-			height:screen.height,
-			frame:false,
-			resizable:false
-		});*/
-		//setTimeout(()=>{
 		this.blocksSolvedLast24 = 0;
 		this.allTimeBlocks = 0;
 		let alltime = 0;
@@ -60,6 +49,9 @@ class feApp{
 		this.writeLinuxDesktopRunner();
 	}
 	writeLinuxDesktopRunner(){
+		if(process.platform.indexOf('linux') == -1){
+			return; //not linux
+		}
 		let runnerPath = nw.App.getStartPath()+'/HandyMiner.desktop';
 		let execPath = nw.App.getStartPath();
 		if(global.__dirname.indexOf('package.nw') >= 0){
@@ -95,18 +87,10 @@ class feApp{
 			}
 		}
 
-		/**********UPDATE ME PLS*****/
-		/*this.network = 'testnet';
-		this.prodPort = '13037';
-		this.peersPort = '13038';*/
-		/*this.network = 'simnet';
-		this.prodPort = '15037';
-		this.peersPort = '15038';*/
 		this.network = 'main';
 		this.prodPort = '12937';
 		this.peersPort = '12938';
-		/*****EXTRA UPDATE ME PLS*******/
-
+		
 
 		if(typeof process.env.HANDY_IS_MAINNET != "undefined"){
 			this.network = 'main';
@@ -145,7 +129,6 @@ class feApp{
 		this.last100Blocks = {};
 		this.canFetchNetworkTimeline = false;
 			
-		console.log('fe app is constructed');
 		this.initEvents();
 		//let config = fs.readFileSync('./HandyMiner/config.json','utf8');
 		let config;
@@ -221,39 +204,12 @@ class feApp{
 			$('.blocksToday .label').html('Session Shares')
 		}
 
-		console.log('home loc??',process.env.HOME);
 		this.initLogo();
 		setTimeout(()=>{
-			/*fs.readFile(this.appDirPath+'HandyMinerConfigs/hsdConfig.json',(err,d)=>{
-				if(!err){
-					console.log('done reading configs?')
-					this.hsdConfig = JSON.parse(d.toString('utf8'));
-					$('#hsdApiPass').val(this.hsdConfig.apiKey);
-					$('#hsdMinerWallet').val(this.hsdConfig.wallet);
-					this.hsdWallet = this.hsdConfig.wallet;
-					if(typeof this.hsdConfig.url != "undefined"){
-						$('#hsdAPIUrl').val(this.hsdConfig.url);
-						$('#hsdAPIPass').val(this.hsdConfig.apiKey);
-						this.hsdURL = this.hsdConfig.url;
-					}
-					console.log('should launch hsd then?')
-					
-					this.launchHSD();
-					console.log('auto launched HSD on start')
-					//fs.writeFileSync(process.env.HOME+'/.HandyMiner/hsdConfig.json',JSON.stringify(this.hsdConfig))
-				}
-				else{
-					//no config was found, first timer i guess
-					//this.initLogo();
-					this.hideLoading();
-					console.log('err launching hsd?',d.toString('utf8'))
-				}
-			});*/
+			
 			this.hideLoading();
 		},3000);
-		console.log('config isset??',config);
-		/*this.getHSDNetworkInfo();
-		this.startTimer();*/
+		
 	}
 	initEvents(){
 		const _this = this;
@@ -492,9 +448,7 @@ class feApp{
 
 			$(this).parents('.minerForm').addClass('hidden');
 		});
-		$('.queryGPUs').off('click').on('click',function(){
-			_this.queryGPUs();
-		})
+		
 		/*$('.settings').off('click').on('click',function(){
 			$('.minerForm').removeClass('hidden');
 		});*/
@@ -852,200 +806,8 @@ class feApp{
 		})
 		//$.post('http://x:'+this.hsdConfig.apiKey+'@127.0.0.1:13037/',{method:'addnode',params:[nodeaddr,'add']});
 	}
-	getGlobalIP(callback){
-		var options = {
-		  host: 'ipv4bot.whatismyipaddress.com',
-		  port: 80,
-		  path: '/'
-		};
-		let extIP = '';
-		let intIP = '127.0.0.1';
-
-		var ifaces = os.networkInterfaces();
-		let desired = ['Ethernet','Wi-Fi','en0'];
-		Object.keys(ifaces).forEach(function (ifname) {
-		  var alias = 0;
-
-		  ifaces[ifname].forEach(function (iface) {
-		    if ('IPv4' !== iface.family || iface.internal !== false) {
-		      // skip over internal (i.e. 127.0.0.1) and non-ipv4 addresses
-		      return;
-		    }
-
-		    if (alias >= 1) {
-		      // this single interface has multiple ipv4 addresses
-		      console.log(ifname + ':' + alias, iface.address);
-		      
-		    } else {
-		      // this interface has only one ipv4 adress
-		      
-		      console.log(ifname, iface.address);
-		    }
-		    if(desired.indexOf(ifname) >= 0){
-	      		intIP = iface.address;
-	      	}
-		    ++alias;
-		  });
-		});
-		http.get(options, function(res) {
-		  console.log("status: " + res.statusCode);
-
-		  res.on("data", function(chunk) {
-		  	extIP = chunk.toString('utf8');
-		  	callback(null,{external:extIP,internal:intIP});
-		    console.log("BODY: " + chunk);
-		  });
-		}).on('error', function(e) {
-			callback(e,e.message);
-		  console.log("error: " + e.message);
-		});
-	}
-	queryGPUs(){
-		//testdata
-		this.showLoading();
-		$('.modalContent').html('<ul />');
-		console.log('query gpus?',nw.__dirname+'/submodules/HandyMiner-CLI');
-		process.env.HANDYRAW = 'true';
-		let executable = process.platform.toLowerCase().indexOf('darwin') == 0 ? process.execPath : nw.global.__dirname+'/externals/node.exe';
-		process.env.HANDYMINER_GUI_NODE_EXEC = executable;
-
-		let queryProcess = spawn(executable,
-			['./mine.js','-1',$('#gpuPlatform option:selected').val() || '0','amd'	],
-			{
-				cwd:nw.__dirname+'/submodules/HandyMiner-CLI/',
-				env:process.env
-			});
-		console.log('qp isset???',queryProcess);
-		queryProcess.stderr.on('data',function(d){
-			console.log('data err',d);
-			//$('.gpuPlatformNote').html('No GPUs found, try another platform').addClass('err');
-		})
-		let hasFoundGPUs = false;
-		queryProcess.stdout.on('data',(d)=>{
-			console.log('data returned',d.toString('utf8'));
-			let dN = d.toString('utf8').split('\n');
-			
-			dN.map((line)=>{
-				try{
-					let json = JSON.parse(line.toString('utf8'));
-					console.log('data back',json);
-					if(json.type == 'registration'){
-						//do something with numdevices
-						console.log('will show devices now');
-						hasFoundGPUs = true;
-						showDevices(json.data);
-						$('.gpuPlatformNote').html(' ').removeClass('err');
-						this.pushToLogs(JSON.stringify(json),'stdout','miner');
-						setTimeout(()=>{
-							queryProcess.kill();
-						},5000)
-					}
-					if(json.type == 'error'){
-						if(json.message != 'not up to date'){
-							if(!hasFoundGPUs){
-								$('.gpuPlatformNote').html('No GPUs found, try another platform').addClass('err');
-							}
-							this.hideLoading();
-						}
-						this.pushToLogs(JSON.stringify(json),'error','miner');
-					}
-				}
-				catch(e){
-
-				}
-			})
-			
-		})
-		queryProcess.stderr.on('data',(d)=>{
-			console.log('error????',d.toString('utf8'))
-			//$('.gpuPlatformNote').html('No GPUs found, try another platform').addClass('err');
-			this.hideLoading();
-			this.pushToLogs(d.toString('utf8'),'error','miner');
-			$ul.html('There was an error.. Check the logs (top right icon) for more details.')
-		})
-		queryProcess.on('close',()=>{
-			//done
-			console.log('spawn finished, yay');
-			setTimeout(()=>{
-				this.hideLoading();
-			},3000)
-			
-		});
-		function showDevices(data){
-			let $tmpl = $('#gpuTemplate').clone();
-			$tmpl.removeAttr('id');
-			let $ul = $('.modalContent ul');//$('<ul></ul>');
-			data.map(function(d){
-				/*
-				<div class="checkbox-container">
-		        <label class="checkbox-label">
-		            <input type="checkbox" id="muteFanfare" value="1" />
-		            <span class="checkbox-custom rectangular"></span>
-		        </label>
-		        <label id="fflabel" for="muteFanfare">Mute Fanfare Winning Song</label>
-		    </div>
-				*/
-				let cbWrap = $('<div class="checkbox-container"></div>')
-				let $label = $('<label class="checkbox-label"></label>')
-				$label.append('<input type="checkbox" id="gpu'+d.id+'" value="'+d.id+'" class="checks" />')
-				$label.append('<span class="checkbox-custom rectangular"></span>');
-				cbWrap.append($label);
-				let gpuStringName = d.name;
-				if(d.name.toLowerCase().indexOf('gfx900') >= 0){
-					gpuStringName = 'AMD Vega Series';					
-				}
-				if(d.name.toLowerCase().indexOf('ellesmere') >= 0){
-					gpuStringName = 'AMD RX**0 Series';
-				}
-				let $tLabel = $('<label class="tLabel" for="gpu'+d.id+'">GPU'+d.id+': '+gpuStringName+'</label>');
-				cbWrap.append($tLabel);
-				console.log('gpu name?',d.name,d.name.toLowerCase().indexOf('intel'))
-				
-				//$ul.append('<li><input type="checkbox" value="'+d.id+'" class="checks" /> GPU'+d.id+': '+d.name+'</li>')
-				let $li = $('<li />')
-				$li.append(cbWrap);
-				$ul.append($li);
-				if(d.name.toLowerCase().indexOf('intel') >= 0 && d.name.toLowerCase().indexOf('hd graphics') >= 0){
-					$tLabel.addClass('isIntel')
-					$li.append('<small class="isIntel">Note: Using this GPU Will Impact Computer Performance</small>')
-				}
-			});
-			//$('.modalContent').html($ul);
-
-			$('#modal .save').off('click').on('click',function(){
-				let outStr = [];
-				$('input:checked',$ul).each(function(){
-					var v = $(this).val();
-					let t = $tmpl.clone();
-					t.attr('data-id',v);
-					t.addClass('gpuIcon');
-					$('li',t).eq(0).html('GPU'+v);
-					$('li',t).eq(1).html('--GH');
-					$('.gpuStatus').append(t)
-					outStr.push(v);
-				});
-				$('#gpuList').val(outStr.join(','));
-
-				$('#modal').hide();
-			})
-			$('#modal .close').off('click').on('click',function(){
-				$('#modal').hide();
-			})
-			$('#modal').show();
-		}
-		/*let data = [ 
-			{ event: 'registerDevice',
-		    id: '0',
-		    name: 'Intel(R) HD Graphics 630',
-		    platform: '0' },
-		  { event: 'registerDevice',
-		    id: '1',
-		    name: 'AMD Radeon Pro 560 Compute Engine',
-		    platform: '0' 
-		  } 
-		];*/
-		
-	}
+	
+	
 	getHSDNetworkInfo(isAttempt2){
 		return false; //deprecating for goldshell gui
 		const _this = this;
@@ -1933,7 +1695,11 @@ class feApp{
 			this.minerProcess.kill();
 			this.hashRates = {};
 		}
-		fs.writeFileSync(nw.__dirname+'/submodules/HandyMiner-Goldshell-CLI/goldshell.json',JSON.stringify(this.config,null,2),'utf8'); //make a default config
+		
+		if(process.platform != 'darwin'){
+			//mac cant write the config, make sure distro has a goldshell.json dummy in the cli main dir
+			fs.writeFileSync(nw.__dirname+'/submodules/HandyMiner-Goldshell-CLI/goldshell.json',JSON.stringify(this.config,null,2),'utf8'); //make a default config
+		}
 
 		const handyMinerParams = [
 			'./mine.js',
@@ -2686,11 +2452,9 @@ class feApp{
 			geometry.faces.push(face);
 		}
 		var bufferGeometry;
-		console.log('geo isset logo',bufferGeometry)
 		var _this = this;
 		
 		$.getJSON('./glsl/handshake.json',function(d){
-			console.log('handshake attrs back',d);
 			
 			var directions = new Float32Array(d.direction.value.length*3);
 			var centroids = new Float32Array(d.centroid.value.length*3);
