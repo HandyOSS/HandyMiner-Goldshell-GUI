@@ -55,6 +55,7 @@ node.js is REQUIRED to build. **Make sure to get the same version of node.js as 
 **HandyMiner Team Donation Address (BTC): ```bc1qk3rk4kgek0hzpgs8qj4yej9j5fs7kcnjk7kuvt```**
 
 <a id="ubuntuFirstRun" />
+
 ##### Ubuntu Users First Run Permissions Step:
 
 ##### To add your user to the device group for non-sudo device access: 
