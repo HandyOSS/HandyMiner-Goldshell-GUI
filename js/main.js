@@ -1241,9 +1241,7 @@ class feApp{
 
 		let timeExtent = [targetTime,moment().format('x')]//d3.extent(allTimes);
 		let totalHashrateSeries = [];
-		let allDates = totalHashrate.filter(d=>{
-			return d[1] >= targetTime;
-		}).map(d=>{
+		let allDates = totalHashrate.map(d=>{
 			totalHashrateSeries.push(d[0]);
 			return d[1];
 		});
@@ -1392,9 +1390,11 @@ class feApp{
 			let greyscale = (i) => d3[colorScheme][Math.max(3, overlap)][i + Math.max(0, 3 - overlap)]
 			let ylGn = (i) => d3['schemeYlGn'][Math.max(3, overlap)][i + Math.max(0, 3 - overlap)]
 			
+			let dateDomain = [moment().subtract(15,'minutes').format('x'),moment().format('x')];
 			let x = d3.scaleUtc()
-			    .domain(d3.extent(data.dates))
-			    .range([0, width]);
+			    .domain(dateDomain/*d3.extent(data.dates)*/)
+			    .range([0, width])
+			    .clamp(true);
 			let y = d3.scaleLinear()
 			    .domain([0, d3.max(data[type], d => d3.max(d.values))])
 			    .range([0, -overlap * step])
