@@ -84,6 +84,26 @@ class feApp{
 				})
 			},5000)
 		}
+		if(process.platform.indexOf('win32') >= 0){
+			//windows
+			this.detectDisplayInterval = setInterval(()=>{
+				let resp = '';
+				let ps1 = spawn('powershell.exe',[nw.__dirname+'/js/detectScreensaver.ps1']);
+				ps1.stdout.on('data',d=>{
+					resp += d.toString('utf8').trim();
+					
+				})
+				ps1.on('close',d=>{
+					if(resp.length == 0){
+						//not going
+						this.isDisplaySleeping = false;
+					}
+					else{
+						this.isDisplaySleeping = true;
+					}
+				})
+			},5000);
+		}
 	}
 	enableDarkLightOption(){
 		let isDarkMode = localStorage.getItem('isDarkMode') == 'true' ? true : false;
