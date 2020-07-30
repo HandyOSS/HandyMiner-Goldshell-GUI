@@ -46,7 +46,67 @@ class feApp{
 			this.resizeStatsPanel();
 			this.renderHashrate();
 		})
+		
+		
 		this.writeLinuxDesktopRunner();
+		this.enableDarkLightOption();
+		this.isDisplaySleeping = false;
+		this.detectDisplayIsSleeping();
+	}
+	detectDisplayIsSleeping(){
+		if(process.platform.indexOf('darwin') >= 0){
+			this.detectDisplayInterval = setInterval(()=>{
+				let ioreg = spawn('ioreg',['-n', /*'AppleBacklightDisplay'*/ 'IODisplayWrangler']);
+				let grep = spawn('grep',['-i', /*'brightness'*/ 'IOPowerManagement'])
+				//, 'grep','-i', 'IOPowerManagement'
+				ioreg.stdout.on('data',d=>{
+					grep.stdin.write(d.toString('utf8'));
+					//fs.appendFileSync(nw.__dirname+'/screenStats.jsonl',d.toString('utf8')+'\n\n');
+				})
+				ioreg.on('close', (code) => {
+				  grep.stdin.end();
+				});
+
+				grep.stdout.on('data',d=>{
+					let data = d.toString('utf8');
+					data = data.split('"CurrentPowerState"')[1].split(',')[0].replace('=','');
+					data = parseInt(data);
+
+					/*fs.appendFileSync(nw.__dirname+'/screenStats.jsonl',JSON.stringify({powerState:data})+'\n');
+					fs.appendFileSync(nw.__dirname+'/screenStats.jsonl',d.toString('utf8')+'\n');*/
+					if(data < 3){
+						//screen is asleep
+						this.isDisplaySleeping = true;
+					}
+					else{
+						this.isDisplaySleeping = false;
+					}
+				})
+			},5000)
+		}
+	}
+	enableDarkLightOption(){
+		let isDarkMode = localStorage.getItem('isDarkMode') == 'true' ? true : false;
+		let darkModeLabel = 'Dark Mode';
+		if(isDarkMode){
+			darkModeLabel = 'Light Mode';
+		}
+
+		$('#darkLightMode').html(darkModeLabel);
+		$('#darkLightMode').off('click').on('click',()=>{
+			isDarkMode = localStorage.getItem('isDarkMode') == 'true' ? true : false;
+			if(isDarkMode){
+				//is dark, toggle light
+				$('html').attr('id','light');
+				$('#darkLightMode').html('Dark Mode');
+				localStorage.setItem('isDarkMode','false');
+			}
+			else{
+				$('html').attr('id','dark');
+				$('#darkLightMode').html('Light Mode');
+				localStorage.setItem('isDarkMode','true');
+			}
+		})
 	}
 	writeLinuxDesktopRunner(){
 		if(process.platform.indexOf('linux') == -1){
@@ -519,6 +579,9 @@ class feApp{
 		  		catch(e){
 
 		  		}
+			}
+			if(typeof _this.detectDisplayInterval != "undefined"){
+				clearInterval(_this.detectDisplayInterval);
 			}
 			if(process.platform.toLowerCase().indexOf('win') == 0 || _this.macUseDocker){
 
@@ -1061,13 +1124,16 @@ class feApp{
 		}
 		
 		localLines = localLines.split('\n');
+		//console.log('hashrateLines',localLines);
 		lines = lines.split('\n');
 		if(lines.length > 300){
-			lines = lines.slice(-300);
+			lines = lines.slice(-200);
 			fs.writeFileSync(diffFn,lines.join('\n'),'utf8');
 		}
 		if(localLines.length > 300){
-			localLines = localLines.slice(-300);
+			localLines = localLines.slice(-200);
+			//console.log('slicing locallines',localLines);
+			console.log('slice locallines')
 			fs.writeFileSync(localFn,localLines.join('\n'),'utf8');
 		};
 
@@ -1175,11 +1241,15 @@ class feApp{
 
 		let timeExtent = [targetTime,moment().format('x')]//d3.extent(allTimes);
 		let totalHashrateSeries = [];
-		let allDates = totalHashrate.map(d=>{
+		let allDates = totalHashrate.filter(d=>{
+			return d[1] >= targetTime;
+		}).map(d=>{
 			totalHashrateSeries.push(d[0]);
 			return d[1];
 		});
-
+		if(this.isDisplaySleeping){
+			return; //skip chart render if the app does not have focus?
+		}
 		Object.keys(dataByAsic).map(asicID=>{
 			if(typeof this.asicNames[asicID] == "undefined"){
 				return;
@@ -1319,7 +1389,7 @@ class feApp{
 				break;
 			}
 			let color = (i) => d3[colorScheme][Math.max(3, overlap)][i + Math.max(0, 3 - overlap)]
-			let greyscale = (i) => d3['schemeGreys'][Math.max(3, overlap)][i + Math.max(0, 3 - overlap)]
+			let greyscale = (i) => d3[colorScheme][Math.max(3, overlap)][i + Math.max(0, 3 - overlap)]
 			let ylGn = (i) => d3['schemeYlGn'][Math.max(3, overlap)][i + Math.max(0, 3 - overlap)]
 			
 			let x = d3.scaleUtc()
@@ -1387,7 +1457,15 @@ class feApp{
 		    .data(d => new Array(overlap).fill(d))
 		    .join("use")
 		      .attr("fill", (d, i) => {
-		      	let rgb = d3.rgb(greyscale(i));
+		      	let rgb;
+		      	// grey::: //let rgb = d3.rgb(greyscale(i));
+		      	if((d.name == 'Hashrate') || type != 'hashrate') {
+
+		      		rgb = d3.rgb(color(i));
+		      	}
+		      	else{
+		      		rgb = d3.rgb(ylGn(i));
+		      	}
 		      	//console.log('fill color',rgb,d);
 		      	return rgb
 		      })
@@ -1414,7 +1492,16 @@ class feApp{
 		      		.transition()
 		      		.duration(100)
 		      		.attr("fill", (d, i) => {
-				      	let rgb = d3.rgb(greyscale(i));
+				      	//GREY  //let rgb = d3.rgb(greyscale(i));
+				      	let rgb;
+				      	// grey::: //let rgb = d3.rgb(greyscale(i));
+				      	if((d.name == 'Hashrate') || type != 'hashrate') {
+
+				      		rgb = d3.rgb(color(i));
+				      	}
+				      	else{
+				      		rgb = d3.rgb(ylGn(i));
+				      	}
 				      	//console.log('fill color',rgb,d);
 				      	return rgb
 				    })
@@ -1423,10 +1510,12 @@ class feApp{
 		      .attr('stroke','rgba(200,200,200,0.6')
 		      .attr("transform", (d, i) => `translate(0,${(i + 1) * step})`)
 		      .attr("xlink:href", d => d.pathId.href);
-		    g.selectAll('text')
+		    let texts = g.selectAll('text')
 		    	.data(d=>{return [d];})
 		    	.join('text')
 		    //.append("text")
+		    		.classed('front',true)
+		    		.classed('back',false)
 			      .attr("x", 4)
 			      .attr("y", step / 2)
 			      .attr("dy", "0.35em")
@@ -1459,8 +1548,14 @@ class feApp{
 					      	return rgb
 					    })
 			      	return;
-			      })
-			$('text','svg[data-id="'+asicID+'"].'+type).eq(0).addClass('first');
+			      });
+			    texts.clone(true)
+			    	.classed('front',false)
+			    	.classed('back',true)
+		        .attr("stroke-linejoin", "round")
+		        .attr("stroke-width", 3);
+		      g.selectAll('.front').raise()
+			$('text.front','svg[data-id="'+asicID+'"].'+type).eq(0).addClass('first');
 			$('svg[data-id="'+asicID+'"].hashrate path').eq(0).addClass('first');
 
 			/*svg.append("g")
@@ -2421,7 +2516,11 @@ class feApp{
 	initLogo(){
 		this.shouldRenderLogo = true;
 		this.scene = new THREE.Scene();
-		this.scene.background =  new THREE.Color(0xeeeeee)
+		let color = 0xeeeeee;
+		if($('html').attr('id') == 'dark'){
+			color = 0x222222
+		}
+		this.scene.background =  new THREE.Color(color)
 		this.timeGroup = new THREE.Object3D();
 		this.scene.add(this.timeGroup);
 		this.highlightLinesGroup = new THREE.Object3D();
@@ -2477,22 +2576,25 @@ class feApp{
 			bufferGeometry = new THREE.BufferGeometry().fromGeometry(geometry)
 			bufferGeometry.addAttribute( 'direction', new THREE.BufferAttribute( directions, 3 ) );
 			bufferGeometry.addAttribute( 'centroid', new THREE.BufferAttribute( centroids, 3 ) );
-			// our shader 
 			
+			let color = new THREE.Vector3(0,0,0);
+			if($('html').attr('id') == 'dark'){
+				color = new THREE.Vector3(180/255,180/255,180/255)
+			}
 			const material = new THREE.ShaderMaterial({
 				vertexShader: document.getElementById('logoVertexShader').textContent,
 				fragmentShader: document.getElementById('logoFragmentShader').textContent,
 				wireframe: false,
 				transparent: true,
 				opacity:0.5,
-				color:new THREE.Color(0xffffff),
 				side:THREE.DoubleSide,
 				//attributes: bufferGeometry,
 				uniforms: {
 				  opacity: { type: 'f', value: 1 },
 				  scale: { type: 'f', value: 0 },
-				  animate: { type: 'f', value: 0 
-				}			}
+				  animate: { type: 'f', value: 0 },
+				  color: { type: 'v3', value: color}
+				}
 			})
 			bufferGeometry.computeBoundingSphere();
 			const mesh = new THREE.Mesh(bufferGeometry, material)

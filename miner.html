@@ -1,4 +1,4 @@
-<html style="background:#eee;">
+<html>
 <meta charset="UTF-8">
 <head>
 	<link rel="stylesheet" type="text/css" href="css/main.css" />
@@ -10,9 +10,9 @@
 	<script type="shader/x-fragment" id="logoFragmentShader">
 		uniform float animate;
 		uniform float opacity;
-
+		uniform vec3 color;
 		void main() {
-		  gl_FragColor = vec4(vec3(0,0,0), opacity);
+		  gl_FragColor = vec4(color, opacity);
 		}
 	</script>
 	<script type="shader/x-vertex" id="logoVertexShader">
@@ -48,7 +48,7 @@
 	</script>
 	<script src="js/main.js"></script>
 </head>
-<body style="background:#eee;">
+<body>
 
 <div class="minerForm hidden" id="gpus">
 	<h3>Enter GPU Information</h3>
@@ -356,6 +356,7 @@
 <div id="settingsOptions">
 	<ul>
 		<li id="miningMode">Mining Settings</li>
+		<li id="darkLightMode">Dark Mode</li>
 		<li id="gpuSettings">GPUs</li>
 	</ul>
 </div>

@@ -67,6 +67,11 @@ html,body{
 	background:#eee;
 	color:#111;
 	font-family: 'IBM Plex Mono', sans-serif;
+	transition: color 0.4s linear;
+}
+html#dark, #dark body{
+	color:#ddd;
+	background:#222;
 }
 html.inverted{
 	filter:invert(1.0);
@@ -79,9 +84,13 @@ h3{
 	font-size:24px;
 	font-weight:300;
 	margin:5px 0;
-	color:#0c0;
+	color:#88b04b;
 	font-weight:700;
 	font-family:'IBM Plex Sans';
+}
+#dark .minerForm{
+	background:#222;
+	color:#ddd;
 }
 .minerForm{
 	position:absolute;
@@ -94,6 +103,7 @@ h3{
 	transition: left 0.2s linear;
 	background:#eee;
 	z-index:1;
+	transition: background 0.4s linear;
 }
 .minerForm#cyoa{
 	z-index:6;
@@ -117,7 +127,9 @@ h3{
 .minerForm.minerMain{
 	z-index:0;
 }
-
+#dark .escape{
+	color:#999;
+}
 .minerForm .escape{
 	font-size:12px;
 	color:#444;
@@ -147,12 +159,15 @@ h3{
 .minerForm.hidden{
 	left:-100%;
 }
+#dark .infoElement{
+	background: linear-gradient(to bottom, rgba(255,255,255,0.09) 0%,rgba(255,255,255,0.02) 1%,rgba(255,255,255,0) 100%);
+}
 .infoElement{
 	float:left;
 	width:calc(100% - 40px);
 	padding: 10px;
 	background: linear-gradient(to bottom, rgba(0,0,0,0.09) 0%,rgba(0,0,0,0.01) 1%,rgba(0,0,0,0) 100%); 
-
+	transition: background 0.4s linear;
 	position:relative;
 }
 .infoElement.gpuIcon{
@@ -236,6 +251,9 @@ select#poolProvider{
 	padding: 2px 5px;
 	float:left;
 }
+#dark #advancedPoolSettings{
+	color:#88b04b;
+}
 #advancedPoolSettings{
 	float:left;
 	clear:both;	
@@ -281,6 +299,10 @@ select#poolProvider{
 	background:rgba(0,0,180,0.5);
 	color:#eee;
 }
+#dark input{
+	background: rgba(0,0,0,0.25);
+	color:#ccc;
+}
 input{
 	background: rgba(0,0,0,0.15);
 	border-radius: 3px;
@@ -289,6 +311,10 @@ input{
   outline: none;
   color:#111;
   border:none;
+}
+#dark select{
+	background: rgba(0,0,0,0.25);
+	color:#ccc;
 }
 select {
     /*-webkit-appearance: none;
@@ -302,6 +328,10 @@ select {
     outline: none;
     color:#111;
     font-family:'IBM Plex Sans';
+}
+#dark .saveButton, #dark #logs .close, .nukeDocker{
+	background:rgba(0,0,0,0.25);
+	color:#ccc;
 }
 .saveButton, #logs .close, .nukeDocker{
 	float:left;
@@ -321,6 +351,9 @@ select {
 }
 .saveButton:hover, #logs .close:hover, .nukeDocker:hover{
 	background:rgba(0,0,0,0.4);
+}
+#dark .minerMain .infoElement img{
+	filter:invert(0.8);
 }
 .minerMain .infoElement img{
 	width: 47px;
@@ -353,18 +386,22 @@ select {
 	display:block;
 }
 .minerMain ul li:first-child{
-	color:#00cc00;
+	color:#88b04b;
 	padding-left:2px;
 	font-weight:700;
 	font-family:'IBM Plex Sans';
 	clear:right;
 	display:block;
 }
+#dark .blocksAllTime, #dark .blocksToday{
+	background: linear-gradient(to bottom, rgba(255,255,255,0.09) 0%,rgba(255,255,255,0.02) 1%,rgba(255,255,255,0) 100%);
+}
 .blocksAllTime, .blocksToday{
 	float:left;
 	width:50%;
 	text-align: center;
 	background:linear-gradient(to bottom, rgba(0,0,0,0.09) 0%,rgba(0,0,0,0.01) 1%,rgba(0,0,0,0) 100%);
+	transition: background 0.4s linear;
 }
 .title{
 	float:right;
@@ -428,6 +465,9 @@ a:visited{
 .blocksToday .number, .blocksAllTime .number{
 	font-size:86px;
 	display:block;
+}
+#dark .blocksToday .label, #dark .blocksAllTime .label{
+	color:#777;
 }
 .blocksToday .label, .blocksAllTime .label{
 	color:#555;
@@ -508,6 +548,10 @@ a:visited{
 .modalBody .close{
 
 }
+#dark .settings, #dark .startStop, #dark .logs{
+	background:rgba(51,51,51,0.8);
+	color:#ccc;
+}
 .settings,.startStop,.logs{
 	position:absolute;
 	top:0;
@@ -543,12 +587,16 @@ a:visited{
 .startStop.playing{
 	font-size:12px;
 }
+#dark .stats{
+	background: linear-gradient(to bottom, rgba(0,0,0,0.09) 0%,rgba(255,255,255,0.02) 1%,rgba(255,255,255,0) 100%);
+}
 .stats{
 	float:left;
 	height:31%;
 	width:100%;
 	margin-top:10px;
 	background:linear-gradient(to bottom, rgba(0,0,0,0.09) 0%,rgba(0,0,0,0.01) 1%,rgba(0,0,0,0) 100%);
+	transition: background 0.4s linear;
 	padding-top:5px;
 }
 .stats .halfChart{
@@ -573,40 +621,58 @@ a:visited{
 	font-size:24px;
 	font-weight:600;
 }
-
+/*#dark .stats .halfChart .asic{
+	background: linear-gradient(to bottom, rgba(255,255,255,0.09) 0%,rgba(255,255,255,0.02) 1%,rgba(255,255,255,0) 100%);
+}
 .stats .halfChart .asic{
 	background:linear-gradient(to bottom, rgba(0,0,0,0.09) 0%,rgba(0,0,0,0.01) 1%,rgba(0,0,0,0) 100%);
-}
+	transition: background 0.4s linear;
+}*/
 .stats .halfChart svg{
 	float:left;
 	width:100%;
 	height:100%;
 }
 #right svg text.first{
+	/*fill:#fff;*/
+}
+#dark #right svg text.front{
 	fill:#fff;
+}
+#dark #right svg text.back{
+	stroke:#333;
+}
+#right svg text.back{
+	stroke:#fff;
 }
 #right svg.temp path{
 	opacity:0.35;
 	transition: opacity 0.25s linear;
 }
-#right svg.fans path, #right svg.hashrate path.first{
-	opacity:0.55;
+/*#right svg.fans path, #right svg.hashrate path.first{*/
+#right svg path{
+	opacity:0.45;
 	transition: opacity 0.25s linear;
 }
-#right svg.temp:hover path, #right svg.fans:hover path, #right svg.hashrate:hover path.first{
-	opacity:0.85;
+/*#right svg.temp:hover path, #right svg.fans:hover path, #right svg.hashrate:hover path.first{*/
+#right g:hover path, #right rect:hover path{
+	opacity:1.0;
+}
 }
 path.line{
 	stroke:#666;
 	fill:#fff;
 }
 path.localHR{
-	stroke:#00cc00;
+	stroke:#88b04b;
 	stroke-width:1.5px;
 	fill:none;
 }
 html.inverted path.localHR{
 	filter:invert(1.0);
+}
+#dark .stats .label{
+	color:#888;
 }
 .stats .label{
 	color:#555;
@@ -626,7 +692,7 @@ g.localHRAxis text, g.localHRAxis line{
 	fill:#00aa00;
 }
 g.localHRAxis line{
-	stroke:#00cc00;
+	stroke:#88b04b;
 }
 .label small{
 	font-size: 10px;
@@ -635,6 +701,9 @@ input#hsdMinerWallet, input#hsdMinerWalletPool{
 	width:100%;
 }
 
+#dark #logs{
+	background:rgba(21,21,21,0.95);
+}
 #logs{
 	float:left;
 	width:100%;
@@ -651,7 +720,7 @@ input#hsdMinerWallet, input#hsdMinerWalletPool{
 }
 #logs pre{
 	float:left;
-	width: 92%;
+	width: 94%;
 	color:#0c0;
 	margin: 1% 2%;
 	padding: 10px;
@@ -665,10 +734,16 @@ input#hsdMinerWallet, input#hsdMinerWalletPool{
     white-space: -o-pre-wrap;
     word-wrap: break-word;
 }
+#dark #logs .label{
+	color:#999;
+}
 #logs .label{
 	float:left;
 	width:calc(100% - 40px);
 	padding: 0px 20px;
+}
+#dark #logs .close{
+	background:rgba(140,140,140,0.15);
 }
 #logs .close{
 	right: 20px;
@@ -953,7 +1028,13 @@ input#hsdMinerWallet, input#hsdMinerWalletPool{
   }
 }
 
-
+#dark #settingsOptions{
+	background:rgba(51,51,51,0.85);
+	box-shadow:-1px 2px 7px #000;
+}
+#dark #settingsOptions li{
+	border-bottom: 1px solid #555;
+}
 #settingsOptions{
 	position:absolute;
 	top:30px;
@@ -992,10 +1073,13 @@ input#hsdMinerWallet, input#hsdMinerWalletPool{
 #settingsOptions ul li:last-child{
 	border-bottom:none !important;
 }
+#dark #introLogo{
+	background:#222;
+}
 #introLogo{
 	position:absolute;
 	z-index:100;
-	background:#fff;
+	background:#eee;
 	width:100%;
 	height:100%;
 	top:0;

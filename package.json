@@ -10,6 +10,7 @@
     "height": 580,
     "icon": "icons/app_256x256x32.png"
   },
+  "inject_js_start":"js/enableThemes.js",
   "node-remote": {
     "scheme": "file"
   },
