@@ -1584,17 +1584,17 @@ class feApp{
 			      .attr("dy", "0.35em")
 			      .text(d => {
 			      	if(d.name == 'Hashrate'){
-			      		return _this.i10nData['text.hashrate'][i10n]+': '+d.values[d.values.length-1]+labelSuffix;
+			      		return _this.i10nData['text.hashrate'][i10n].trim()+': '+d.values[d.values.length-1]+labelSuffix;
 			      	}
 			      	if(d.name.indexOf('Worker') >= 0){
 			      		let wID = d.name.split('Worker')[1];
-			      		return _this.i10nData['text.workers'][i10n]+wID+': '+d.values[d.values.length-1]+labelSuffix;
+			      		return _this.i10nData['text.workers'][i10n].trim()+' '+wID+': '+d.values[d.values.length-1]+labelSuffix;
 			      	}
 			      	if(d.name == 'Temperature'){
-			      		return _this.i10nData['text.temp'][i10n]+': '+d.values[d.values.length-1]+labelSuffix;
+			      		return _this.i10nData['text.temp'][i10n].trim()+': '+d.values[d.values.length-1]+labelSuffix;
 			      	}
 			      	if(d.name == 'Fan RPM'){
-			      		return _this.i10nData['text.fan'][i10n]+': '+d.values[d.values.length-1]+labelSuffix;
+			      		return _this.i10nData['text.fan'][i10n].trim()+': '+d.values[d.values.length-1]+labelSuffix;
 			      	}
 			      	
 			      })

@@ -69,6 +69,9 @@ html,body{
 	font-family: 'IBM Plex Mono', sans-serif;
 	transition: color 0.4s linear;
 }
+html::-webkit-scrollbar {
+  display: none;
+}
 html#dark, #dark body{
 	color:#ddd;
 	background:#222;
@@ -319,6 +322,9 @@ input{
 	background: rgba(0,0,0,0.25);
 	color:#ccc;
 }
+#dark select option{
+	background-color:#111;
+}
 select {
     /*-webkit-appearance: none;
     -moz-appearance: none;
@@ -501,6 +507,9 @@ a:visited{
 	background:#aaa;
 	color:#eee;
 }
+.modalContent::-webkit-scrollbar {
+  display: none;
+}
 .modalContent{
 	height:88%;
 	border: 1px solid #777;
@@ -625,6 +634,9 @@ a:visited{
 }
 .stats .halfChart#left{
 	width:30%;
+}
+#right::-webkit-scrollbar {
+  display: none;
 }
 .stats .halfChart#right{
 	width:70%;
@@ -1103,6 +1115,7 @@ input#hsdMinerWallet, input#hsdMinerWalletPool{
 	height:100%;
 	top:0;
 	left:0;
+	overflow:hidden;
 }
 #introLogo.hidden{
 	display:none;
@@ -1112,14 +1125,26 @@ input#hsdMinerWallet, input#hsdMinerWalletPool{
 	color:#aa0000;
 }
 .languageIcon{
-	float: left;
+  float: left;
   width: 50%;
   cursor:pointer;
+  background-position:center center;
+  background-size: 24px 24px;
+  background-repeat:no-repeat;
+  height:24px;
+
+}
+.languageIcon#cn{
+	background-image:url('../img/cn.png');
+}
+.languageIcon#en{
+	background-image:url('../img/en.png');
 }
 #dark .languageIcon:hover, #dark .languageIcon.selected{
-	background:rgba(255,255,255,0.25);
+	background-color:rgba(255,255,255,0.25);
 }
 .languageIcon:hover, .languageIcon.selected{
-	background:rgba(0,180,0,0.1)
+	background-color:rgba(0,0,0,0.7)
 }
+
 
