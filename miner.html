@@ -129,25 +129,25 @@
 </div>
 
 <div class="minerForm hidden" id="poolUI">
-	<h3>Enter Mining Pool Details</h3>
+	<h3 id="label_poolDetails">Enter Mining Pool Details</h3>
 	<div class="infoElement stratumElement" id="serverPort">
 		<div class="stratumSubElement">
-			<label for="poolProvider">Mining Pool</label>
+			<label id="label_poolProvider" for="poolProvider">Mining Pool</label>
 			<select id="poolProvider">
 				<option value="hns.ss.dxpool.com" selected="selected">dxpool</option>
 				<option value="hns.f2pool.com" selected="selected">f2 pool</option>
 				<option value="stratum-us.hnspool.com">hnspool</option>
-				<option value="other">other</option>
+				<option id="label_other" value="other">other</option>
 			</select>
 			<a id="advancedPoolSettings" href="#">advanced|custom pool settings</a>
 		</div>
 		
 		<div class="stratumSubElement hidden advancedStratumSetting">
-			<label for="stratumHost">Pool Stratum Custom Host</label>
+			<label id="label_stratumHost" for="stratumHost">Pool Stratum Custom Host</label>
 			<input type="text" id="stratumHostPool" placeholder="hns.f2pool.com" value="hns.f2pool.com" />
 		</div>
 		<div class="stratumSubElement hidden advancedStratumSetting">
-			<label for="stratumPort">Pool Stratum Port</label>
+			<label id="label_stratumPort" for="stratumPort">Pool Stratum Port</label>
 			<input type="text" id="stratumPortPool" placeholder="6000" value="6000" />
 		</div>
 	</div>
@@ -170,11 +170,11 @@
 
 	<div class="infoElement stratumElement" id="userPass">
 		<div class="stratumSubElement">
-			<label for="stratumUser">Mining User</label>
-			<input type="text" id="stratumUserPool" class="superwide" placeholder="wallet.rigName" />
+			<label id="label_miningUser" for="stratumUser">Mining User</label>
+			<input type="text" id="stratumUserPool" class="superwide" placeholder="wallet.workerName" />
 		</div>
 		<div class="stratumSubElement hidden" id="poolPass">
-			<label for="stratumPass">Mining Password</label>
+			<label id="label_miningPass" for="stratumPass">Mining Password</label>
 			<input type="text" id="stratumPassPool" placeholder="anything" />
 		</div>
 
@@ -193,10 +193,10 @@
 	  </small>
 	</div> -->	
 	
-	<div class="saveButton">
+	<div id="label_savePool" class="saveButton">
 		Save Mining Pool Details
 	</div>
-	<div class="escape">[ESC to hide]</div>
+	<div id="label_escHide" class="escape">[ESC to hide]</div>
 </div>
 <div class="minerForm hidden" id="stratum">
 	<h3>Enter Solo Stratum Details</h3>
@@ -261,11 +261,10 @@
 	</div>
 </div>
 <div id="logs" class="hidden">
-	<div class="label">Raw Miner Logs:</div>
-	<pre id="minerOutput">
+	<div id="label_rawLogs" class="label">Raw Miner Logs:</div>
+	<pre id="minerOutput" class="en">
 		###################################
-		# Miner logs show up about 5-10s  #
-		# after clicking the play button. #
+		# Click the play button to launch #
 		###################################
 		#    |\---/|                      #
 		#    | ,_, |                      #
@@ -275,7 +274,8 @@
 		#   (_,...'(_,.`__)/'.....+       #
 		###################################
 	</pre>
-	<div class="close">Hide</div>
+
+	<div id="label_hideLogs" class="close">Hide</div>
 </div>
 <!-- <div class="minerForm hidden" id="hsd">
 	<h3>Enter HSD Node Details</h3>
@@ -304,26 +304,26 @@
 		
 	</div>
 	<div class="latest">
-		<div class="blocksToday"><span class="number">--</span><span class="label">Session Solutions</span></div>
-		<div class="blocksAllTime"><span class="number">--</span><span class="label">Solutions All Time</span></div>
+		<div class="blocksToday"><span class="number">--</span><span id="label_sessionSolution" class="label">Session Shares</span></div>
+		<div class="blocksAllTime"><span class="number">--</span><span id="label_allTimeSolution" class="label">Shares All Time</span></div>
 	</div>
 	<div class="stats">
 		<div class="halfChart" id="left">
 			<div class="leftInfo totalHashrate">
 				<div class="value">---GH</div>
-				<div class="label">Total Hashrate</div>
+				<div id="label_totalHR" class="label">Total Hashrate</div>
 			</div>
 			<div class="leftInfo avgHashrate">
 				<div class="value">---GH</div>
-				<div class="label">Avg Hashrate</div>
+				<div id="label_avgHR" class="label">Avg Hashrate</div>
 			</div>
 			<div class="leftInfo networkDiff">
 				<div class="value">---</div>
-				<div class="label">Network Diff</div>
+				<div id="label_networkDiff" class="label">Network Diff</div>
 			</div>
 			<div class="leftInfo localDiff">
 				<div class="value">---</div>
-				<div class="label">Share Diff</div>
+				<div id="label_shareDiff" class="label">Share Diff</div>
 			</div>
 		</div>
 		<div class="halfChart" id="right">
@@ -336,9 +336,12 @@
 		<span class="statusLabel">Starting Synchronization...</span>
 	</div>
 	<!-- <div class="title">View Latest Block in HNSCAN: <a target="_blank" href="http://hnscan.com/block/0">0</a></div> -->
-	<div class="settings">&#9776;<!-- &#9881; --></div>
-	<div class="startStop paused" title="start miner">&#9654;</div>
-	<div class="logs" title="logs">&#128220;</div>
+	<div id="globalSettings">
+		<div class="settings">&#9776;<!-- &#9881; --></div>
+		<div class="startStop paused" title="start miner">&#9654;</div>
+		<div class="logs" title="logs">&#128220;</div>
+	</div>
+	
 </div>
 <div id="modal">
 	<div class="modalBody">
@@ -357,6 +360,10 @@
 	<ul>
 		<li id="miningMode">Mining Settings</li>
 		<li id="darkLightMode">Dark Mode</li>
+		<li id="i10n">
+			<div class="languageIcon" id="en">🇬🇧</div>
+			<div class="languageIcon" id="cn">🇨🇳</div>
+		</li>
 		<li id="gpuSettings">GPUs</li>
 	</ul>
 </div>

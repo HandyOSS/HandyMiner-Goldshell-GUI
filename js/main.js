@@ -34,6 +34,8 @@ class feApp{
 		if(isNaN(alltime)){
 			alltime = 0;
 		}
+		this.i10nData = {}
+		this.initI10n();
 		this.allTimeBlocks = alltime;
 		let formatSmallSession = this.blocksSolvedLast24 > 1000 ? '0.0a' : '0a';
 		let formatSmallAllTime = this.allTimeBlocks > 1000 ? '0.0a' : '0a';
@@ -49,11 +51,50 @@ class feApp{
 		
 		
 		this.writeLinuxDesktopRunner();
-		this.enableDarkLightOption();
+		//this.enableDarkLightOption();
 		this.isDisplaySleeping = false;
 		this.detectDisplayIsSleeping();
 	}
+	initI10n(){
+		if(localStorage.getItem('i10nData') != null){
+			let i10nData = JSON.parse(localStorage.getItem('i10nData'));
+			this.i10nData = i10nData;
+		}
+		const _this = this;
+		$('.languageIcon').off('click').on('click',function(){
+			let val = $(this).attr('id');
+			localStorage.setItem('i10n',val);
+			$('.languageIcon').removeClass('selected');
+			$(this).addClass('selected');
+			_this.renderI10N();
+			_this.renderHashrate();
+			//console.log('set i10n',val)
+		})
+		_this.renderI10N();
+	}
+	renderI10N(){
+		let i10n = localStorage.getItem('i10n');
+		let darkLabel = 'Dark Mode';
+		let lightLabel = 'Light Mode';
+		$('.languageIcon').removeClass('selected')
+		$('.languageIcon#'+i10n).removeClass('selected').addClass('selected')
+		Object.keys(this.i10nData).map(id=>{
+			if(id.indexOf('text.') == -1 && id != 'darkLightMode'){
+				//console.log('i10n setting',id,this.i10nData[id][i10n])
+				$('#'+id).html(this.i10nData[id][i10n]);
+			}
+			if(id == 'darkLightMode'){
+				let modes = this.i10nData[id][i10n].split('|');
+				darkLabel = modes[0];
+				lightLabel = modes[1];
+			}
+
+
+		});
+		this.enableDarkLightOption(darkLabel,lightLabel)
+	}
 	detectDisplayIsSleeping(){
+		return false; //deprecate in favor of eliminate d3 transitions
 		if(process.platform.indexOf('darwin') >= 0){
 			this.detectDisplayInterval = setInterval(()=>{
 				let ioreg = spawn('ioreg',['-n', /*'AppleBacklightDisplay'*/ 'IODisplayWrangler']);
@@ -105,11 +146,12 @@ class feApp{
 			},5000);
 		}
 	}
-	enableDarkLightOption(){
+	enableDarkLightOption(darkLabel,lightLabel){
+		console.log('enable darkmode');
 		let isDarkMode = localStorage.getItem('isDarkMode') == 'true' ? true : false;
-		let darkModeLabel = 'Dark Mode';
+		let darkModeLabel = darkLabel;
 		if(isDarkMode){
-			darkModeLabel = 'Light Mode';
+			darkModeLabel = lightLabel;
 		}
 
 		$('#darkLightMode').html(darkModeLabel);
@@ -118,12 +160,12 @@ class feApp{
 			if(isDarkMode){
 				//is dark, toggle light
 				$('html').attr('id','light');
-				$('#darkLightMode').html('Dark Mode');
+				$('#darkLightMode').html(darkLabel);
 				localStorage.setItem('isDarkMode','false');
 			}
 			else{
 				$('html').attr('id','dark');
-				$('#darkLightMode').html('Light Mode');
+				$('#darkLightMode').html(lightLabel);
 				localStorage.setItem('isDarkMode','true');
 			}
 		})
@@ -279,10 +321,10 @@ class feApp{
 		}
 		this.config = config;
 		
-		if(this.config.mode == 'pool'){
+		/*if(this.config.mode == 'pool'){
 			$('.blocksAllTime .label').html('Shares All Time');
 			$('.blocksToday .label').html('Session Shares')
-		}
+		}*/
 
 		this.initLogo();
 		setTimeout(()=>{
@@ -547,12 +589,11 @@ class feApp{
 			$('#settingsOptions').hide();
 			$('.settings').removeClass('hovered');
 		});
-		$('#settingsOptions li').off('click').on('click',function(){
+		$('#settingsOptions li#miningMode').off('click').on('click',function(){
 			var id = $(this).attr('id');
 			_this.hideLoading();
 			switch(id){
 				case 'miningMode':
-				default:
 					$('#poolUI').removeClass('hidden');
 				break;
 				case 'gpuSettings':
@@ -1382,7 +1423,7 @@ class feApp{
 
 			//horizonElCount = 4;// data.hashrate.length;
 			const svg = d3.select($el[0]).select('svg[data-id="'+asicID+'"].'+type);
-			$('svg[data-id="'+asicID+'"].'+type,$el).css('height',step*data[type].length)
+			$('svg[data-id="'+asicID+'"].'+type,$el).css('height',(step+1)*data[type].length)
 			
 			let width = $('#right.halfChart').width();
 			let height = $('#right.halfChart').height();
@@ -1464,8 +1505,8 @@ class feApp{
 		      .join('path')
 		      //.append("path")
 		      .attr("id", d => d.pathId.id)
-		      .transition()
-		      .duration(300)
+		      /*.transition()
+		      .duration(300)*/
 		      .attr("d", d => area(d.values));
 		    let gClipPath = g.selectAll('g')
 		      .data(d=>{return [d];})
@@ -1530,6 +1571,8 @@ class feApp{
 		      .attr('stroke','rgba(200,200,200,0.6')
 		      .attr("transform", (d, i) => `translate(0,${(i + 1) * step})`)
 		      .attr("xlink:href", d => d.pathId.href);
+		    //TODO add translation
+		    let i10n = localStorage.getItem('i10n');
 		    let texts = g.selectAll('text')
 		    	.data(d=>{return [d];})
 		    	.join('text')
@@ -1539,7 +1582,22 @@ class feApp{
 			      .attr("x", 4)
 			      .attr("y", step / 2)
 			      .attr("dy", "0.35em")
-			      .text(d => d.name+': '+d.values[d.values.length-1]+labelSuffix)
+			      .text(d => {
+			      	if(d.name == 'Hashrate'){
+			      		return _this.i10nData['text.hashrate'][i10n]+': '+d.values[d.values.length-1]+labelSuffix;
+			      	}
+			      	if(d.name.indexOf('Worker') >= 0){
+			      		let wID = d.name.split('Worker')[1];
+			      		return _this.i10nData['text.workers'][i10n]+wID+': '+d.values[d.values.length-1]+labelSuffix;
+			      	}
+			      	if(d.name == 'Temperature'){
+			      		return _this.i10nData['text.temp'][i10n]+': '+d.values[d.values.length-1]+labelSuffix;
+			      	}
+			      	if(d.name == 'Fan RPM'){
+			      		return _this.i10nData['text.fan'][i10n]+': '+d.values[d.values.length-1]+labelSuffix;
+			      	}
+			      	
+			      })
 			      .on('mouseenter',function(d,i){
 			      	d3.select(this.parentNode).selectAll('use')
 			      		.transition()
