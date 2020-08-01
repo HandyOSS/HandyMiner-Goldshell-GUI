@@ -28,7 +28,9 @@ const l10n_csv = ifs.readFileSync(nw.__dirname+'/js/l10n.csv','utf8');
 
 let l10nData = {};
 let csvData = l10n_csv.split('\n');
-let keys = csvData[0].split(',');
+let keys = csvData[0].split(',').map(key=>{
+	return key.replace('\r','').trim();
+});
 
 csvData.slice(1).map(line=>{
 	let cells = line.split(',');
