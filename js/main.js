@@ -393,7 +393,7 @@ class feApp{
 				break;
 			}
 			function hidePass(){
-				$('#stratumUserPool').attr('placeholder','wallet.rigName');
+				$('#stratumUserPool').attr('placeholder','HNS Address.[Insert Worker Name]');
 				$('#stratumPassPool').attr('placeholder','Anything');
 				$('#poolPass').addClass('hidden');
 				$('#stratumUserPool').addClass('superwide');
