@@ -34,8 +34,8 @@ class feApp{
 		if(isNaN(alltime)){
 			alltime = 0;
 		}
-		this.i10nData = {}
-		this.initI10n();
+		this.l10nData = {}
+		this.initl10n();
 		this.allTimeBlocks = alltime;
 		let formatSmallSession = this.blocksSolvedLast24 > 1000 ? '0.0a' : '0a';
 		let formatSmallAllTime = this.allTimeBlocks > 1000 ? '0.0a' : '0a';
@@ -55,36 +55,36 @@ class feApp{
 		this.isDisplaySleeping = false;
 		this.detectDisplayIsSleeping();
 	}
-	initI10n(){
-		if(localStorage.getItem('i10nData') != null){
-			let i10nData = JSON.parse(localStorage.getItem('i10nData'));
-			this.i10nData = i10nData;
+	initl10n(){
+		if(localStorage.getItem('l10nData') != null){
+			let l10nData = JSON.parse(localStorage.getItem('l10nData'));
+			this.l10nData = l10nData;
 		}
 		const _this = this;
 		$('.languageIcon').off('click').on('click',function(){
 			let val = $(this).attr('id');
-			localStorage.setItem('i10n',val);
+			localStorage.setItem('l10n',val);
 			$('.languageIcon').removeClass('selected');
 			$(this).addClass('selected');
-			_this.renderI10N();
+			_this.renderl10n();
 			_this.renderHashrate();
-			//console.log('set i10n',val)
+			//console.log('set l10n',val)
 		})
-		_this.renderI10N();
+		_this.renderl10n();
 	}
-	renderI10N(){
-		let i10n = localStorage.getItem('i10n');
+	renderl10n(){
+		let l10n = localStorage.getItem('l10n');
 		let darkLabel = 'Dark Mode';
 		let lightLabel = 'Light Mode';
 		$('.languageIcon').removeClass('selected')
-		$('.languageIcon#'+i10n).removeClass('selected').addClass('selected')
-		Object.keys(this.i10nData).map(id=>{
+		$('.languageIcon#'+l10n).removeClass('selected').addClass('selected')
+		Object.keys(this.l10nData).map(id=>{
 			if(id.indexOf('text.') == -1 && id != 'darkLightMode'){
-				//console.log('i10n setting',id,this.i10nData[id][i10n])
-				$('#'+id).html(this.i10nData[id][i10n]);
+				//console.log('l10n setting',id,this.l10nData[id][l10n])
+				$('#'+id).html(this.l10nData[id][l10n]);
 			}
 			if(id == 'darkLightMode'){
-				let modes = this.i10nData[id][i10n].split('|');
+				let modes = this.l10nData[id][l10n].split('|');
 				darkLabel = modes[0];
 				lightLabel = modes[1];
 			}
@@ -147,7 +147,6 @@ class feApp{
 		}
 	}
 	enableDarkLightOption(darkLabel,lightLabel){
-		console.log('enable darkmode');
 		let isDarkMode = localStorage.getItem('isDarkMode') == 'true' ? true : false;
 		let darkModeLabel = darkLabel;
 		if(isDarkMode){
@@ -730,9 +729,7 @@ class feApp{
 			$('#logs').addClass('hidden');
 			_this.logsVisible = false;
 		})
-		console.log('init evts??');
 		$(window).on('keyup',function(e){
-			console.log('e',e.key,e.key == 'Escape');
 			if(e.key == 'Escape'){
 				$('.minerForm:not(#main)').addClass('hidden');
 				$('#logs').addClass('hidden');
@@ -1193,8 +1190,6 @@ class feApp{
 		}
 		if(localLines.length > 300){
 			localLines = localLines.slice(-200);
-			//console.log('slicing locallines',localLines);
-			console.log('slice locallines')
 			fs.writeFileSync(localFn,localLines.join('\n'),'utf8');
 		};
 
@@ -1572,7 +1567,7 @@ class feApp{
 		      .attr("transform", (d, i) => `translate(0,${(i + 1) * step})`)
 		      .attr("xlink:href", d => d.pathId.href);
 		    //TODO add translation
-		    let i10n = localStorage.getItem('i10n');
+		    let l10n = localStorage.getItem('l10n');
 		    let texts = g.selectAll('text')
 		    	.data(d=>{return [d];})
 		    	.join('text')
@@ -1584,17 +1579,18 @@ class feApp{
 			      .attr("dy", "0.35em")
 			      .text(d => {
 			      	if(d.name == 'Hashrate'){
-			      		return _this.i10nData['text.hashrate'][i10n].trim()+': '+d.values[d.values.length-1]+labelSuffix;
+			      		return _this.l10nData['text.hashrate'][l10n].trim()+': '+d.values[d.values.length-1]+labelSuffix;
 			      	}
 			      	if(d.name.indexOf('Worker') >= 0){
 			      		let wID = d.name.split('Worker')[1];
-			      		return _this.i10nData['text.workers'][i10n].trim()+' '+wID+': '+d.values[d.values.length-1]+labelSuffix;
+			      		return _this.l10nData['text.workers'][l10n].trim()+' '+wID+': '+d.values[d.values.length-1]+labelSuffix;
 			      	}
 			      	if(d.name == 'Temperature'){
-			      		return _this.i10nData['text.temp'][i10n].trim()+': '+d.values[d.values.length-1]+labelSuffix;
+			      		return _this.l10nData['text.temp'][l10n].trim()+': '+d.values[d.values.length-1]+labelSuffix;
 			      	}
 			      	if(d.name == 'Fan RPM'){
-			      		return _this.i10nData['text.fan'][i10n].trim()+': '+d.values[d.values.length-1]+labelSuffix;
+			      		return _this.l10nData['text.fan'][l10n].trim()+': '+d.values[d.values.length-1]+labelSuffix;
+
 			      	}
 			      	
 			      })
@@ -2343,22 +2339,9 @@ class feApp{
 
 			}
 
-			/*
-				$('.syncedIcon').addClass('alert');
-					$('.syncedButton .statusLabel').html('Failed to start HSD');
-			*/
-
-			console.log('error was found???',j,j.disconnected);
 		}
 
-		/*if(type == 'error'){
-			
-			$('.logs').addClass('alerted');
-		}*/
-		//console.log('line pushed',line,line.indexOf('chain/LOCK:'),line.indexOf('Resource temporarily unavailable'));
-
 		
-		//TODO: make notication button to show logs
 	}
 	startDockerizedHSD(){
 		this.hasLogged = false;
