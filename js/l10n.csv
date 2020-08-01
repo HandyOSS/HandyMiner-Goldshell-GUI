@@ -18,7 +18,7 @@ label_miningPass,"Mining Password","密码"
 label_savePool,"Save Mining Pool Details","保存详细信息"
 label_escHide,"[ESC to hide]","[ESC键隐藏]"
 label_rawLogs,"Raw Miner Logs:","矿工产量"
-label_hideLogs,"Hide","隐藏",
+label_hideLogs,"Hide","隐藏"
 text.hashrate,"Hashrate","矿池算力"
 text.workers,"Worker","處理器"
 text.temp,"Temperature","温度"
