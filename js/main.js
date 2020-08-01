@@ -730,7 +730,7 @@ class feApp{
 			_this.logsVisible = false;
 		})
 		$(window).on('keyup',function(e){
-			if(e.key == 'Escape'){
+				if(e.key == 'Escape'){
 				$('.minerForm:not(#main)').addClass('hidden');
 				$('#logs').addClass('hidden');
 			}
@@ -1445,8 +1445,11 @@ class feApp{
 			let color = (i) => d3[colorScheme][Math.max(3, overlap)][i + Math.max(0, 3 - overlap)]
 			let greyscale = (i) => d3[colorScheme][Math.max(3, overlap)][i + Math.max(0, 3 - overlap)]
 			let ylGn = (i) => d3['schemeYlGn'][Math.max(3, overlap)][i + Math.max(0, 3 - overlap)]
-			
+			let dateExtent = d3.extent(data.dates);
 			let dateDomain = [moment().subtract(15,'minutes').format('x'),moment().format('x')];
+			if(dateExtent[0] > dateDomain[0]){
+				dateDomain = dateExtent;
+			}
 			let x = d3.scaleUtc()
 			    .domain(dateDomain/*d3.extent(data.dates)*/)
 			    .range([0, width])
