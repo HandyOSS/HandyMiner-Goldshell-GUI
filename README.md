@@ -9,7 +9,7 @@
 ### HandyBrowser Support Telegram/Handshake Discussion:
 [🤝 HandshakeTalk Telegram](http://t.me/HandshakeTalk)
 
-### Donate HNS to the HandyMiner Team:
+### Donate to the HandyMiner Team:
 
 ![alt text](./icons/qr.png)
 
