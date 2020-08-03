@@ -2349,7 +2349,9 @@ class feApp{
 				let asicID = j.data.asicID;
 				this.asicDisconnected[asicID] = true;
 				let allDisconnected = true;
-				Object.keys(this.asicNames).map(id=>{
+				Object.keys(this.asicNames).filter(id=>{
+					return id != "undefined";
+				}).map(id=>{
 					if(!this.asicDisconnected[id]){
 						allDisconnected = false;
 					}
