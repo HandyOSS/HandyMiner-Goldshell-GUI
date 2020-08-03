@@ -232,6 +232,7 @@ class feApp{
 		this.hashRates = {};
 		this.difficulty = {};
 		this.asicNames = {};
+		this.asicDisconnected = {};
 		this.minerLogs = '';
 		this.hsdLogs = '######################################\r\n';
 		this.hsdLogs +='############# HANDY MINER ############\r\n';
@@ -1235,7 +1236,6 @@ class feApp{
 			timeForLine = timestamp;
 			allTimes.push(timestamp);
 			
-			//console.log('hrline',hrLine)
 			Object.keys(hrLine.rates).map(asicID=>{
 				if(typeof dataByAsic[asicID] == "undefined"){
 					createLineObj(asicID,hrLine.rates[asicID]);
@@ -2033,6 +2033,9 @@ class feApp{
 						*/
 						//console.log('new machine registered',lineD);
 						_this.asicNames[lineD.data.serialPort] = lineD.data.modelName;
+						if(typeof _this.asicDisconnected[lineD.data.serialPort] != "undefined"){
+							delete _this.asicDisconnected[lineD.data.serialPort];
+						}
 						if($('.gpuIcon[data-id="'+lineD.data.serialPort+'"]').length == 0){
 							let t = $tmpl.clone();
 							t.attr('data-id',lineD.data.serialPort);
@@ -2130,6 +2133,24 @@ class feApp{
 							temp:lineD.data.temp,
 							fan:lineD.data.fanRpm
 						};
+						if(Object.keys(_this.asicDisconnected).length > 0){
+							let blankWorkers = {};
+							for(let i=1;i<=4;i++){
+								blankWorkers[i] = {
+									hashrateNow:0,
+									hashrateAvg:0
+								}
+							}
+							Object.keys(_this.asicDisconnected).map(id=>{
+								_this.hashRates[id] = {
+									hashrateNow:0,
+									hashrateAvg:0,
+									workerHashrates:blankWorkers,
+									temp:0,
+									fan:0
+								}
+							})
+						}
 						let hrLine = JSON.stringify({rates:_this.hashRates,time:new Date().getTime()})+'\n';
 						fs.appendFileSync(_this.appDirPath+'HandyMinerConfigs/localHashrate.jsonl',hrLine,'utf8');
 						//write difficulty here because it's more regular
@@ -2326,6 +2347,18 @@ class feApp{
 			if(j.disconnected){
 				//asic was disconnected
 				let asicID = j.data.asicID;
+				this.asicDisconnected[asicID] = true;
+				let allDisconnected = true;
+				Object.keys(this.asicNames).map(id=>{
+					if(!this.asicDisconnected[id]){
+						allDisconnected = false;
+					}
+				})
+				if(allDisconnected){
+					$('.totalHashrate .value').html('--GH')
+					$('.avgHashrate .value').html('--GH')
+				}
+
 				console.log('asic id discon',asicID)
 				$('.gpuIcon[data-id="'+asicID+'"]').addClass('disconnected');
 				$('.logs').addClass('alerted');
