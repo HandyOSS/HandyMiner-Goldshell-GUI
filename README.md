@@ -6,6 +6,13 @@
 
 **[Note for Ubuntu users permissions on first run](#ubuntuFirstRun)**
 
+# Easy Installation
+       Simple setup will have mining in **seconds** with an incredibly streamlined UX.
+       0. Paste your HNS address and create a worker name. 
+       1. Select your pool (HNSPool/DXPool/F2Pool support by default) and press Play.
+       2. Your miner will immediate connect to the pool and start mining.
+      
+
 ### HandyMiner GUI Running with Goldshell HS1 
 ![imgur](https://i.imgur.com/pDb3O6n.jpg)
 
