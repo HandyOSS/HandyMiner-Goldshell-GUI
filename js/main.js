@@ -1236,11 +1236,12 @@ class feApp{
 			timeForLine = timestamp;
 			allTimes.push(timestamp);
 			
-			Object.keys(hrLine.rates).map(asicID=>{
+			Object.keys(hrLine.rates).filter(asicID=>{
+				return typeof this.asicNames[asicID] != "undefined" && typeof this.asicDisconnected[asicID] == "undefined"
+			}).map(asicID=>{
 				if(typeof dataByAsic[asicID] == "undefined"){
 					createLineObj(asicID,hrLine.rates[asicID]);
 				}
-				
 				let hashrateData = hrLine.rates[asicID];
 				hashratePerAsic[asicID].realtime.push([hashrateData.hashrateNow,timestamp])
 				fansPerAsic[asicID].realtime.push([hashrateData.fan,timestamp]);
@@ -1653,11 +1654,21 @@ class feApp{
 			}
 
 			let workerHRObj = {};
-			Object.keys(hrLast.workerHashrates).map(workerID=>{
-				workerHRObj[workerID] = {
-					realtime:[]
+			if(Object.keys(hrLast.workerHashrates).length == 0){
+				//create placeholder
+				for(let i=1;i<=4;i++){
+					workerHRObj[i] = {
+						realtime:[]
+					}
 				}
-			});
+			}
+			else{
+				Object.keys(hrLast.workerHashrates).map(workerID=>{
+					workerHRObj[workerID] = {
+						realtime:[]
+					}
+				});
+			}
 			if(typeof hashratePerAsic[asicID] == "undefined"){
 				hashratePerAsic[asicID] = {
 					realtime:[],
