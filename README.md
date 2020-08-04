@@ -13,8 +13,8 @@
        2. Your miner will immediate connect to the pool and start mining.
       
 
-### HandyMiner GUI Running with Goldshell HS1 
-![imgur](https://i.imgur.com/pDb3O6n.jpg)
+### HandyMiner GUI Running with Goldshell HS1 and multiple ASIC devices connected to a USB hub. 
+![imgur](https://i.imgur.com/WaWiwWT.jpg)
 
 ### HandyBrowser Support Telegram/Handshake Discussion:
 [🤝 HandshakeTalk Telegram](http://t.me/HandshakeTalk)
