@@ -6,6 +6,9 @@
 
 **[Note for Ubuntu users permissions on first run](#ubuntuFirstRun)**
 
+### HandyMiner GUI Running with Goldshell HS1 
+![imgur](https://i.imgur.com/pDb3O6n.jpg)
+
 ### HandyBrowser Support Telegram/Handshake Discussion:
 [🤝 HandshakeTalk Telegram](http://t.me/HandshakeTalk)
 
@@ -31,7 +34,7 @@ Node.js is REQUIRED to build AND distribute. **Make sure to get the same version
 1. ```bower install```
 2. ```npm install -g node-gyp``` will allow us to compile the native module ```serialport```
 3. ```npm install``` in this folder
-4. ```mkdir externals```, then copy the node (or nodejs on linux) binary into the externals folder. Make sure this node is the same version as nw.js is running. [Download node.js binaries here](https://nodejs.org/)
+4. ```mkdir externals```, then copy the node (or nodejs on linux) binary into the externals folder. Make sure this node is the same version as nw.js is running. [Download Node.js binaries here](https://nodejs.org/)
 
 #### Building for Mac
 
@@ -57,7 +60,7 @@ Node.js is REQUIRED to build AND distribute. **Make sure to get the same version
 ### Ubuntu Users First Run Permissions Step:
 
 ##### To add your user to the device group for non-sudo device access: 
-##### the easy way: ```sudo ./linux_grant_serial_permissions.sh``` in the release root, and then logout/login to the linux machine.
+##### The easy way: ```sudo ./linux_grant_serial_permissions.sh``` in the release root, and then logout/login to the linux machine.
 
 ##### Or the less easier way: 
 
