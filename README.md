@@ -4,7 +4,7 @@
 
 ### Download Latest Prebuilt HandyMiner-Goldshell-GUI in [Releases](https://github.com/HandyMiner/HandyMiner-Goldshell-GUI/releases) [Skips all the steps below]
 
-**[note for Ubuntu users permissions on first run](#ubuntuFirstRun)**
+**[Note for Ubuntu users permissions on first run](#ubuntuFirstRun)**
 
 ### HandyBrowser Support Telegram/Handshake Discussion:
 [🤝 HandshakeTalk Telegram](http://t.me/HandshakeTalk)
@@ -23,9 +23,9 @@ First we will checkout HandyMiner-Goldshell-CLI into the project
 ```git submodule init```
 ```git submodule update```
 
-Install GUI/CLI-miner dependencies:
+#### Install GUI/CLI-Miner Dependencies:
 
-node.js is REQUIRED to build AND distribute. **Make sure to get the same version of node.js as the nw.js version you download contains.** [Download node.js](https://nodejs.org/)
+Node.js is REQUIRED to build AND distribute. **Make sure to get the same version of Node.js as the NW.js version you download contains.** [Download Node.js](https://nodejs.org/)
 
 0. ```npm install -g bower```
 1. ```bower install```
@@ -35,22 +35,22 @@ node.js is REQUIRED to build AND distribute. **Make sure to get the same version
 
 #### Building for Mac
 
-0. [Download nw.js](https://nwjs.io/)
+0. [Download NW.js](https://nwjs.io/)
 1. Copy this repo to folder ```./nwjs.app/Contents/Resources/app.nw```
 2. Copy ./icons/app.icns, ./icons/document.icns to ```./nwjs.app/Contents/Resources/```
 3. To change the app display name, follow directions [here](https://nwjs.readthedocs.io/en/latest/For%20Users/Package%20and%20Distribute/)
 
 #### Building for Windows / Linux
 
-0. [Download nw.js](https://nwjs.io/)
-1. Checkout this repo into the nw.js directory next to nwjs.exe as a folder named ```package.nw```
+0. [Download NW.js](https://nwjs.io/)
+1. Checkout this repo into the NW.js directory next to nwjs.exe as a folder named ```package.nw```
 2. To change icons, use ResourceHacker to modify nw.exe icons to ./icons/app.ico
 3. Further options to build/distribute [here](https://nwjs.readthedocs.io/en/latest/For%20Users/Package%20and%20Distribute/)
 
 ### Building native modules
-0. (Windows) Install python 2.7
+0. (Windows) Install Python 2.7
 1. **Make sure your system has the same node.js version as nw.js distributable contains**. This way we can ensure the distributable can run the pre-build native serialport module.
-2. npm install in this directory, it will build module ```serialport``` that can run with nw.js
+2. npm install in this directory, it will build module ```serialport``` that can run with NW.js
 
 <a id="ubuntuFirstRun" />
 
@@ -59,7 +59,7 @@ node.js is REQUIRED to build AND distribute. **Make sure to get the same version
 ##### To add your user to the device group for non-sudo device access: 
 ##### the easy way: ```sudo ./linux_grant_serial_permissions.sh``` in the release root, and then logout/login to the linux machine.
 
-##### or the less easier way: 
+##### Or the less easier way: 
 
 0. Plug in the USB and run the command with the device ID listed in the error, like:
 ```ls -la /dev/ttyACM0```
