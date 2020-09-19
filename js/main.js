@@ -1220,12 +1220,12 @@ class feApp{
 		let lastLocalDiff = 0;
 		let targetTime = moment().subtract(2,'hours').format('x');
 		//console.log('targetTime',targetTime);
-		let filteredJSONs = hashrateJSONs;/*= hashrateJSONs.filter(line=>{
+		let filteredJSONs = /*hashrateJSONs;= */hashrateJSONs.filter(line=>{
 			if(line.time >= targetTime){
 				return true;
 			}
 			return false;
-		})*/
+		}) //get rid of really old data
 		/*hashrateJSONs*/
 		//console.log('tl data',filteredJSONs);
 		filteredJSONs.map((hrLine,i)=>{
@@ -1235,12 +1235,13 @@ class feApp{
 			let timestamp = hrLine.time;
 			timeForLine = timestamp;
 			allTimes.push(timestamp);
-			
+			//console.log('hrline',hrLine);
 			Object.keys(hrLine.rates).filter(asicID=>{
 				return typeof this.asicNames[asicID] != "undefined" && typeof this.asicDisconnected[asicID] == "undefined"
 			}).map(asicID=>{
+				//console.log('asicID',asicID,this.asicNames[asicID],this.asicDisconnected[asicID])
 				if(typeof dataByAsic[asicID] == "undefined"){
-					createLineObj(asicID,hrLine.rates[asicID]);
+					createLineObj(asicID,hrLine.rates[asicID],this.asicNames[asicID]);
 				}
 				let hashrateData = hrLine.rates[asicID];
 				hashratePerAsic[asicID].realtime.push([hashrateData.hashrateNow,timestamp])
@@ -1248,6 +1249,7 @@ class feApp{
 				tempPerAsic[asicID].realtime.push([hashrateData.temp,timestamp]);
 
 				Object.keys(hashrateData.workerHashrates).map(workerID=>{
+					//console.log('workerID',workerID,hashrateData);
 					hashratePerAsic[asicID].workers[workerID].realtime.push([hashrateData.workerHashrates[workerID].hashrateNow,timestamp])
 				})
 				totalSum += hashrateData.hashrateNow;
@@ -1640,7 +1642,7 @@ class feApp{
 			    .call(xAxis);*/
 
 		}
-		function createLineObj(asicID,hrLast){
+		function createLineObj(asicID,hrLast,asicName){
 			//create obj if doesnt exist
 			dataByAsic[asicID] = {
 				dates:[],
@@ -1669,6 +1671,22 @@ class feApp{
 					}
 				});
 			}
+			if(Object.keys(workerHRObj).length == 4 && asicName.indexOf('Plus') >= 0){
+				//recycling port ID, lets add workers to historic data then bc this is a plus..
+				for(let i=5;i<=8;i++){
+					workerHRObj[i] = {
+						realtime:[]
+					}
+				}
+			}
+			else if(Object.keys(workerHRObj).length == 8 && asicName.indexOf('Plus') == -1){
+				//recycling port id from a plus to a non-plus..
+				for(let i=5;i<=8;i++){
+					delete workerHRObj[i];
+				}
+
+			}
+			//console.log("workerHRObj isset",workerHRObj,asicName);
 			if(typeof hashratePerAsic[asicID] == "undefined"){
 				hashratePerAsic[asicID] = {
 					realtime:[],
