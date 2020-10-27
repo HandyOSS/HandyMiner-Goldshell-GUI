@@ -11,6 +11,7 @@
        0. Paste your HNS address and create a worker name. 
        1. Select your pool (HNSPool/DXPool/F2Pool support by default) and press Play.
        2. Your miner will immediate connect to the pool and start mining.
+       3. Note: Make sure your device is set to not sleep automatically, otherwise your miner will stop mining.
       
 
 ### HandyMiner GUI running with the Goldshell HS1 and multiple ASIC devices connected to a USB hub. 
